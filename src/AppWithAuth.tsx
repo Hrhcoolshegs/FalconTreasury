@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen, ChevronDown, ChevronRight, LogOut, User, Settings as SettingsIcon } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen, ChevronDown, ChevronRight, LogOut, User, Settings as SettingsIcon, ScrollText } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import TransactionsModuleEnhanced from './components/modules/TransactionsModuleEnhanced';
 import CounterpartiesModuleEnhanced from './components/modules/CounterpartiesModuleEnhanced';
@@ -14,6 +14,7 @@ import AttributionEngineModule from './components/modules/AttributionEngineModul
 import ReportsModuleEnhanced from './components/modules/ReportsModuleEnhanced';
 import InsightsModule from './components/modules/InsightsModule';
 import KnowledgeCentreModule from './components/modules/KnowledgeCentreModule';
+import AuditTrailModule from './components/modules/AuditTrailModule';
 import Profile from './components/Profile';
 import Settings from './components/Settings';
 import AIConciergeEnhanced from './components/AIConciergeEnhanced';
@@ -84,6 +85,7 @@ const menuGroups: MenuGroup[] = [
 const bottomStandaloneItems: MenuItem[] = [
   { id: 'reports', label: 'Reports', icon: FileText, component: ReportsModuleEnhanced, standalone: true },
   { id: 'knowledge', label: 'Knowledge Centre', icon: BookOpen, component: KnowledgeCentreModule, standalone: true },
+  { id: 'audit', label: 'Audit Trail', icon: ScrollText, component: AuditTrailModule, standalone: true },
   { id: 'settings', label: 'Settings', icon: SettingsIcon, component: Settings, standalone: true },
 ];
 
