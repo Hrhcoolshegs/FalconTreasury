@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FileText, Download, Calendar, Filter, Search, TrendingUp, Users, DollarSign, Activity, BarChart3, AlertTriangle, Clock, CheckCircle, FileSpreadsheet, Send, Loader } from 'lucide-react';
+import { FileText, Download, Calendar, Filter, Search, TrendingUp, Users, DollarSign, Activity, BarChart3, AlertTriangle, Clock, CheckCircle, FileSpreadsheet, Send, Loader, Plus } from 'lucide-react';
+import CustomReportBuilder from './CustomReportBuilder';
 import { format } from 'date-fns';
 import { generateReport, downloadTextReport, downloadCSVReport } from '../../utils/reportGenerator';
 import { useCounterparties } from '../../hooks/useCounterparties';
@@ -66,6 +67,7 @@ const reportTemplates = [
 export default function ReportsModuleEnhanced() {
   const { counterparties } = useCounterparties();
   const { transactions } = useTransactions();
+  const [activeTab, setActiveTab] = useState<'templates' | 'custom'>('templates');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedFrequency, setSelectedFrequency] = useState<string>('All');
@@ -312,6 +314,37 @@ export default function ReportsModuleEnhanced() {
           </div>
         </div>
 
+        <div className="bg-white rounded-xl shadow-md border border-gray-200">
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('templates')}
+              className={`flex-1 px-6 py-4 font-semibold transition-all ${
+                activeTab === 'templates'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <FileText className="w-5 h-5" />
+                <span>Template Reports</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('custom')}
+              className={`flex-1 px-6 py-4 font-semibold transition-all ${
+                activeTab === 'custom'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Plus className="w-5 h-5" />
+                <span>Custom Report Builder</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
         {notification && (
           <div className={`${notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'} border px-4 py-3 rounded-lg flex items-center gap-2`}>
             <CheckCircle className="w-5 h-5" />
@@ -319,7 +352,11 @@ export default function ReportsModuleEnhanced() {
           </div>
         )}
 
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm">
+        {activeTab === 'custom' ? (
+          <CustomReportBuilder />
+        ) : (
+          <>
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-start gap-3">
             <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div>
@@ -440,6 +477,8 @@ export default function ReportsModuleEnhanced() {
             );
           })}
         </div>
+          </>
+        )}
       </div>
     </div>
   );

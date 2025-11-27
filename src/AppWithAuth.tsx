@@ -90,7 +90,7 @@ const bottomStandaloneItems: MenuItem[] = [
 ];
 
 function AppWithAuth() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, login, logout, isAuthenticated } = useAuth();
   const [activeModule, setActiveModule] = useState('dashboard');
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['core']);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -129,7 +129,7 @@ function AppWithAuth() {
   const ActiveComponent = getActiveComponent();
 
   if (!isAuthenticated) {
-    return <Login onLogin={() => {}} />;
+    return <Login onLogin={login} />;
   }
 
   return (
