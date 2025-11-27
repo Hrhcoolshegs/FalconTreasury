@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen, ChevronDown, ChevronRight, LogOut, User, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen, ChevronDown, ChevronRight, LogOut, User, Settings as SettingsIcon } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import TransactionsModuleEnhanced from './components/modules/TransactionsModuleEnhanced';
 import CounterpartiesModuleEnhanced from './components/modules/CounterpartiesModuleEnhanced';
@@ -14,7 +14,8 @@ import AttributionEngineModule from './components/modules/AttributionEngineModul
 import ReportsModuleEnhanced from './components/modules/ReportsModuleEnhanced';
 import InsightsModule from './components/modules/InsightsModule';
 import KnowledgeCentreModule from './components/modules/KnowledgeCentreModule';
-import ProfileSettings from './components/ProfileSettings';
+import Profile from './components/Profile';
+import Settings from './components/Settings';
 import AIConciergeEnhanced from './components/AIConciergeEnhanced';
 import Login from './components/Login';
 import { useAuth } from './contexts/AuthContext';
@@ -24,6 +25,7 @@ interface MenuItem {
   label: string;
   icon: any;
   component: any;
+  standalone?: boolean;
 }
 
 interface MenuGroup {
@@ -33,13 +35,16 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
+const standaloneItems: MenuItem[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, component: Dashboard, standalone: true },
+];
+
 const menuGroups: MenuGroup[] = [
   {
     id: 'core',
     label: 'Core Operations',
     icon: LayoutDashboard,
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, component: Dashboard },
       { id: 'transactions', label: 'Transactions', icon: FileText, component: TransactionsModuleEnhanced },
       { id: 'counterparties', label: 'Counterparties', icon: Users, component: CounterpartiesModuleEnhanced },
     ],
@@ -51,7 +56,6 @@ const menuGroups: MenuGroup[] = [
     items: [
       { id: 'risk', label: 'Risk & Exposure', icon: AlertTriangle, component: RiskExposureModule },
       { id: 'liquidity', label: 'Liquidity', icon: DollarSign, component: LiquidityModule },
-      { id: 'sentiment', label: 'Sentiment Intelligence', icon: Activity, component: SentimentIntelligenceModuleEnhanced },
     ],
   },
   {
@@ -59,6 +63,8 @@ const menuGroups: MenuGroup[] = [
     label: 'Analytics & Intelligence',
     icon: Brain,
     items: [
+      { id: 'sentiment', label: 'Sentiment Intelligence', icon: Activity, component: SentimentIntelligenceModuleEnhanced },
+      { id: 'insights', label: 'Insights Feed', icon: Lightbulb, component: InsightsModule },
       { id: 'behavior', label: 'Behavior Analytics', icon: BarChart3, component: BehaviorAnalyticsModule },
       { id: 'products', label: 'Product Performance', icon: Award, component: ProductPerformanceModuleEnhanced },
       { id: 'predictions', label: 'Predictions', icon: Brain, component: PredictionEngineModule },
@@ -75,14 +81,17 @@ const menuGroups: MenuGroup[] = [
   },
   {
     id: 'reporting',
-    label: 'Reporting & Insights',
+    label: 'Reporting',
     icon: FileText,
     items: [
       { id: 'reports', label: 'Reports', icon: FileText, component: ReportsModuleEnhanced },
-      { id: 'insights', label: 'Insights Feed', icon: Lightbulb, component: InsightsModule },
-      { id: 'knowledge', label: 'Knowledge Centre', icon: BookOpen, component: KnowledgeCentreModule },
     ],
   },
+];
+
+const bottomStandaloneItems: MenuItem[] = [
+  { id: 'knowledge', label: 'Knowledge Centre', icon: BookOpen, component: KnowledgeCentreModule, standalone: true },
+  { id: 'settings', label: 'Settings', icon: SettingsIcon, component: Settings, standalone: true },
 ];
 
 function AppWithAuth() {
@@ -109,8 +118,11 @@ function AppWithAuth() {
 
   const getActiveComponent = () => {
     if (activeModule === 'profile') {
-      return ProfileSettings;
+      return Profile;
     }
+
+    const standaloneItem = [...standaloneItems, ...bottomStandaloneItems].find(i => i.id === activeModule);
+    if (standaloneItem) return standaloneItem.component;
 
     for (const group of menuGroups) {
       const item = group.items.find(i => i.id === activeModule);
@@ -135,6 +147,29 @@ function AppWithAuth() {
 
         <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
+            {standaloneItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleModuleClick(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 text-sm font-medium ${
+                      activeModule === item.id
+                        ? 'bg-white/15 text-white shadow-lg scale-105 translate-x-1'
+                        : 'text-white/70 hover:bg-white/5 hover:text-white hover:scale-102 hover:translate-x-0.5'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 transition-transform duration-300 ${
+                      activeModule === item.id ? 'scale-110' : ''
+                    }`} />
+                    <span>{item.label}</span>
+                  </button>
+                </li>
+              );
+            })}
+
+            <div className="my-3 border-t border-white/10"></div>
+
             {menuGroups.map((group) => {
               const GroupIcon = group.icon;
               const isExpanded = expandedGroups.includes(group.id);
@@ -143,16 +178,16 @@ function AppWithAuth() {
                 <li key={group.id}>
                   <button
                     onClick={() => toggleGroup(group.id)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-white/90 hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-white/90 hover:bg-white/5 transition-all duration-200"
                   >
                     <div className="flex items-center gap-2">
                       <GroupIcon className="w-4 h-4" />
                       <span className="text-sm font-semibold">{group.label}</span>
                     </div>
                     {isExpanded ? (
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="w-4 h-4 transition-transform duration-200" />
                     ) : (
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4 transition-transform duration-200" />
                     )}
                   </button>
 
@@ -164,13 +199,15 @@ function AppWithAuth() {
                           <li key={item.id}>
                             <button
                               onClick={() => handleModuleClick(item.id)}
-                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 text-sm ${
                                 activeModule === item.id
-                                  ? 'bg-white/10 text-white'
-                                  : 'text-white/70 hover:bg-white/5 hover:text-white'
+                                  ? 'bg-white/15 text-white shadow-md scale-105 translate-x-1'
+                                  : 'text-white/70 hover:bg-white/5 hover:text-white hover:scale-102 hover:translate-x-0.5'
                               }`}
                             >
-                              <Icon className="w-4 h-4" />
+                              <Icon className={`w-4 h-4 transition-transform duration-300 ${
+                                activeModule === item.id ? 'scale-110' : ''
+                              }`} />
                               <span>{item.label}</span>
                             </button>
                           </li>
@@ -178,6 +215,29 @@ function AppWithAuth() {
                       })}
                     </ul>
                   )}
+                </li>
+              );
+            })}
+
+            <div className="my-3 border-t border-white/10"></div>
+
+            {bottomStandaloneItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleModuleClick(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 text-sm font-medium ${
+                      activeModule === item.id
+                        ? 'bg-white/15 text-white shadow-lg scale-105 translate-x-1'
+                        : 'text-white/70 hover:bg-white/5 hover:text-white hover:scale-102 hover:translate-x-0.5'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 transition-transform duration-300 ${
+                      activeModule === item.id ? 'scale-110' : ''
+                    }`} />
+                    <span>{item.label}</span>
+                  </button>
                 </li>
               );
             })}
@@ -209,8 +269,8 @@ function AppWithAuth() {
                   }}
                   className="w-full flex items-center gap-2 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
                 >
-                  <Settings className="w-4 h-4" />
-                  <span className="text-sm">Profile & Settings</span>
+                  <User className="w-4 h-4" />
+                  <span className="text-sm">Profile</span>
                 </button>
                 <button
                   onClick={handleLogout}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen, Settings as SettingsIcon } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import TransactionsModule from './components/modules/TransactionsModule';
 import CounterpartiesModule from './components/modules/CounterpartiesModule';
@@ -14,6 +14,7 @@ import AttributionEngineModule from './components/modules/AttributionEngineModul
 import ReportsModule from './components/modules/ReportsModule';
 import InsightsModule from './components/modules/InsightsModule';
 import KnowledgeCentreModule from './components/modules/KnowledgeCentreModule';
+import SettingsComponent from './components/Settings';
 import AIConciergeEnhanced from './components/AIConciergeEnhanced';
 
 const navigation = [
@@ -22,15 +23,16 @@ const navigation = [
   { id: 'counterparties', label: 'Counterparties', icon: Users, component: CounterpartiesModule },
   { id: 'risk', label: 'Risk & Exposure', icon: AlertTriangle, component: RiskExposureModule },
   { id: 'liquidity', label: 'Liquidity', icon: DollarSign, component: LiquidityModule },
-  { id: 'sentiment', label: 'Sentiment', icon: Activity, component: SentimentIntelligenceModuleEnhanced },
-  { id: 'behavior', label: 'Behavior', icon: BarChart3, component: BehaviorAnalyticsModule },
-  { id: 'products', label: 'Products', icon: Award, component: ProductPerformanceModuleEnhanced },
-  { id: 'workflows', label: 'Workflows', icon: Workflow, component: WorkflowsModule },
+  { id: 'sentiment', label: 'Sentiment Intelligence', icon: Activity, component: SentimentIntelligenceModuleEnhanced },
+  { id: 'insights', label: 'Insights Feed', icon: Lightbulb, component: InsightsModule },
+  { id: 'behavior', label: 'Behavior Analytics', icon: BarChart3, component: BehaviorAnalyticsModule },
+  { id: 'products', label: 'Product Performance', icon: Award, component: ProductPerformanceModuleEnhanced },
   { id: 'predictions', label: 'Predictions', icon: Brain, component: PredictionEngineModule },
-  { id: 'attribution', label: 'Attribution', icon: Zap, component: AttributionEngineModule },
+  { id: 'attribution', label: 'Attribution Engine', icon: Zap, component: AttributionEngineModule },
+  { id: 'workflows', label: 'Workflows', icon: Workflow, component: WorkflowsModule },
   { id: 'reports', label: 'Reports', icon: FileText, component: ReportsModule },
-  { id: 'insights', label: 'Insights', icon: Lightbulb, component: InsightsModule },
   { id: 'knowledge', label: 'Knowledge Centre', icon: BookOpen, component: KnowledgeCentreModule },
+  { id: 'settings', label: 'Settings', icon: SettingsIcon, component: SettingsComponent },
 ];
 
 function App() {
@@ -53,13 +55,15 @@ function App() {
                 <li key={item.id}>
                   <button
                     onClick={() => setActiveModule(item.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                       activeModule === item.id
-                        ? 'bg-white/10 text-white'
-                        : 'text-white/70 hover:bg-white/5 hover:text-white'
+                        ? 'bg-white/15 text-white shadow-lg scale-105 translate-x-1'
+                        : 'text-white/70 hover:bg-white/5 hover:text-white hover:scale-102 hover:translate-x-0.5'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className={`w-5 h-5 transition-transform duration-300 ${
+                      activeModule === item.id ? 'scale-110' : ''
+                    }`} />
                     <span className="text-sm font-medium">{item.label}</span>
                   </button>
                 </li>
