@@ -86,7 +86,7 @@ export default function AIConciergeEnhanced() {
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m your Falcon Treasury AI Concierge powered by advanced ML models. I have deep knowledge of:\n\n• All 50 counterparties\n• 5 product lines\n• 24 automated workflows\n• Real-time risk metrics\n• Liquidity forecasting\n• Settlement analytics\n• Compliance status\n• And much more!\n\nAsk me anything about your treasury operations.',
+      content: 'Hello! I\'m your Falcon Treasury AI Concierge powered by OMNIS. I have comprehensive knowledge of:\n\n• All 50 counterparties\n• 5 product lines\n• 24 automated workflows\n• Real-time risk metrics\n• Liquidity forecasting\n• Settlement analytics\n• Compliance status\n• Market intelligence\n• And much more!\n\nAsk me anything about your treasury operations.',
       timestamp: new Date(),
     },
   ]);
@@ -215,12 +215,40 @@ export default function AIConciergeEnhanced() {
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 flex items-center justify-center transition-all z-50"
-      >
-        <Sparkles className="w-7 h-7" />
-      </button>
+      <>
+        <style>
+          {`
+            @keyframes heartbeat {
+              0%, 100% {
+                transform: scale(1);
+              }
+              25% {
+                transform: scale(1.15);
+              }
+              50% {
+                transform: scale(1);
+              }
+            }
+            @keyframes pulse-glow {
+              0%, 100% {
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+              }
+              50% {
+                box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 60px rgba(59, 130, 246, 0.5);
+              }
+            }
+            .heartbeat-button {
+              animation: heartbeat 2s ease-in-out infinite, pulse-glow 2s ease-in-out infinite;
+            }
+          `}
+        </style>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="heartbeat-button fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all z-50"
+        >
+          <Sparkles className="w-7 h-7" />
+        </button>
+      </>
     );
   }
 
@@ -249,8 +277,8 @@ export default function AIConciergeEnhanced() {
         <div className="flex items-center gap-2">
           <Sparkles className="w-6 h-6" />
           <div>
-            <h3 className="font-semibold">AI Concierge</h3>
-            <p className="text-xs text-white/80">Powered by ML • 30+ Knowledge Areas</p>
+            <h3 className="font-semibold">Falcon Treasury AI Concierge</h3>
+            <p className="text-xs text-white/80">Powered by OMNIS</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

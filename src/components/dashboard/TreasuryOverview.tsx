@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, AlertCircle, Sparkles } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { liquidityData, productPerformance, allCounterparties, sentimentData, insights } from '../../data/dummyData';
+import ExplainModal from '../ExplainModal';
 
 export default function TreasuryOverview() {
+  const [explainModal, setExplainModal] = useState<{isOpen: boolean; context: any}>({isOpen: false, context: {}});
   // Calculate summary metrics
   const latestLiquidity = liquidityData[liquidityData.length - 1];
   const totalLiquidityNGN = latestLiquidity.closing_balance_ngn;
@@ -89,7 +92,20 @@ export default function TreasuryOverview() {
               <h3 className="text-lg font-semibold text-gray-900">Liquidity Trend (30 Days)</h3>
               <p className="text-sm text-gray-500">Closing balance by currency</p>
             </div>
-            <button className="flex items-center gap-1 text-sm text-[#1e3a5f] hover:text-[#2d5a8f] transition-colors">
+            <button
+              onClick={() => setExplainModal({
+                isOpen: true,
+                context: {
+                  component: 'treasury-liquidity-trend',
+                  currentValues: {
+                    ngn: (totalLiquidityNGN / 1000000000).toFixed(2),
+                    usd: (totalLiquidityUSD / 1000000).toFixed(2)
+                  },
+                  trends: ['up', 'up']
+                }
+              })}
+              className="flex items-center gap-1 text-sm text-[#1e3a5f] hover:text-[#2d5a8f] transition-colors hover:bg-blue-50 px-3 py-1.5 rounded-lg"
+            >
               <Sparkles className="w-4 h-4" />
               Explain
             </button>
@@ -127,7 +143,18 @@ export default function TreasuryOverview() {
               <h3 className="text-lg font-semibold text-gray-900">FX Exposure by Desk</h3>
               <p className="text-sm text-gray-500">Current exposure distribution</p>
             </div>
-            <button className="flex items-center gap-1 text-sm text-[#1e3a5f] hover:text-[#2d5a8f] transition-colors">
+            <button
+              onClick={() => setExplainModal({
+                isOpen: true,
+                context: {
+                  component: 'treasury-fx-exposure',
+                  currentValues: {
+                    totalExposure: (fxExposure / 1000000000).toFixed(2)
+                  }
+                }
+              })}
+              className="flex items-center gap-1 text-sm text-[#1e3a5f] hover:text-[#2d5a8f] transition-colors hover:bg-blue-50 px-3 py-1.5 rounded-lg"
+            >
               <Sparkles className="w-4 h-4" />
               Explain
             </button>
@@ -206,6 +233,12 @@ export default function TreasuryOverview() {
           ))}
         </div>
       </div>
+
+      <ExplainModal
+        isOpen={explainModal.isOpen}
+        onClose={() => setExplainModal({isOpen: false, context: {}})}
+        context={explainModal.context}
+      />
     </div>
   );
 }
