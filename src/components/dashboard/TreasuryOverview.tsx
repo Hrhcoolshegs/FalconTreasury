@@ -3,18 +3,19 @@ import { ArrowUpRight, ArrowDownRight, TrendingUp, AlertCircle, Sparkles } from 
 import { LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { liquidityData, productPerformance, allCounterparties, sentimentData, insights } from '../../data/dummyData';
 import ExplainModal from '../ExplainModal';
+import { safeNumber, formatLargeNumber } from '../../utils/numberHelpers';
 
 export default function TreasuryOverview() {
   const [explainModal, setExplainModal] = useState<{isOpen: boolean; context: any}>({isOpen: false, context: {}});
   // Calculate summary metrics
   const latestLiquidity = liquidityData[liquidityData.length - 1];
-  const totalLiquidityNGN = latestLiquidity.closing_balance_ngn;
-  const totalLiquidityUSD = latestLiquidity.closing_balance_usd;
+  const totalLiquidityNGN = safeNumber(latestLiquidity?.closing_balance_ngn, 0);
+  const totalLiquidityUSD = safeNumber(latestLiquidity?.closing_balance_usd, 0);
 
-  const dailyPnL = productPerformance.reduce((sum, p) => sum + p.pnl_total_ngn, 0);
-  const settlementPending = allCounterparties.reduce((sum, cp) => sum + cp.outstanding_trades, 0);
+  const dailyPnL = productPerformance.reduce((sum, p) => sum + safeNumber(p.pnl_total_ngn, 0), 0);
+  const settlementPending = allCounterparties.reduce((sum, cp) => sum + safeNumber(cp.outstanding_trades, 0), 0);
 
-  const fxExposure = allCounterparties.reduce((sum, cp) => sum + cp.exposure_ngn, 0);
+  const fxExposure = allCounterparties.reduce((sum, cp) => sum + safeNumber(cp.exposure_ngn, 0), 0);
 
   const highRiskCount = allCounterparties.filter(cp => cp.risk_category === 'High').length;
   const sentimentShifts = sentimentData.filter(s => s.sentiment_trend_30d === 'Declining').length;
@@ -37,10 +38,11 @@ export default function TreasuryOverview() {
   const COLORS = ['#1e3a5f', '#4a90e2', '#f39c12', '#27ae60'];
 
   const formatCurrency = (value: number, currency: string) => {
+    const safeValue = safeNumber(value, 0);
     if (currency === 'NGN') {
-      return `₦${(value / 1000000000).toFixed(2)}B`;
+      return formatLargeNumber(safeValue, 'NGN');
     }
-    return `$${(value / 1000000).toFixed(2)}M`;
+    return formatLargeNumber(safeValue, 'USD');
   };
 
   return (

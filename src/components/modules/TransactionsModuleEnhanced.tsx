@@ -4,6 +4,7 @@ import { Search, Plus, Edit2, Trash2, X, Save, AlertCircle, Calendar, DollarSign
 import { useTransactions } from '../../hooks/useTransactions';
 import { useCounterparties } from '../../hooks/useCounterparties';
 import { format } from 'date-fns';
+import { safeNumber, formatLargeNumber } from '../../utils/numberHelpers';
 
 export default function TransactionsModuleEnhanced() {
   const { transactions, createTransaction, updateTransaction, deleteTransaction } = useTransactions();
@@ -101,10 +102,10 @@ export default function TransactionsModuleEnhanced() {
   };
 
   const stats = useMemo(() => {
-    const totalVolume = transactions.reduce((sum, t) => sum + t.amount_ngn, 0);
-    const totalPnL = transactions.reduce((sum, t) => sum + (t.pnl_ngn || 0), 0);
+    const totalVolume = transactions.reduce((sum, t) => sum + safeNumber(t.amount_ngn_equivalent || (t as any).amount_ngn, 0), 0);
+    const totalPnL = transactions.reduce((sum, t) => sum + safeNumber(t.pnl_realized || (t as any).pnl_ngn, 0), 0);
     const settledCount = transactions.filter(t => t.settlement_status === 'Settled').length;
-    const settlementRate = (settledCount / transactions.length * 100) || 0;
+    const settlementRate = transactions.length > 0 ? (settledCount / transactions.length * 100) : 0;
 
     return { totalVolume, totalPnL, settledCount, settlementRate };
   }, [transactions]);
@@ -141,12 +142,12 @@ export default function TransactionsModuleEnhanced() {
           </div>
           <div className="bg-gradient-to-br from-white to-green-50 rounded-xl shadow-md p-6 border border-green-100">
             <p className="text-sm text-gray-600 font-medium">Total Volume</p>
-            <p className="text-3xl font-bold text-green-600">₦{(stats.totalVolume / 1000000000).toFixed(1)}B</p>
+            <p className="text-3xl font-bold text-green-600">{formatLargeNumber(stats.totalVolume, 'NGN')}</p>
             <p className="text-xs text-gray-500 mt-1">Year to date</p>
           </div>
           <div className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-md p-6 border border-purple-100">
             <p className="text-sm text-gray-600 font-medium">Total P&L</p>
-            <p className="text-3xl font-bold text-purple-600">₦{(stats.totalPnL / 1000000).toFixed(1)}M</p>
+            <p className="text-3xl font-bold text-purple-600">{formatLargeNumber(stats.totalPnL, 'NGN')}</p>
             <p className="text-xs text-gray-500 mt-1">Realized</p>
           </div>
           <div className="bg-gradient-to-br from-white to-teal-50 rounded-xl shadow-md p-6 border border-teal-100">
@@ -218,11 +219,11 @@ export default function TransactionsModuleEnhanced() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                      ₦{(txn.amount_ngn / 1000000).toFixed(1)}M
+                      {formatLargeNumber(safeNumber((txn as any).amount_ngn || txn.amount_ngn_equivalent, 0), 'NGN')}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-sm font-semibold ${(txn.pnl_ngn || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {(txn.pnl_ngn || 0) >= 0 ? '+' : ''}₦{((txn.pnl_ngn || 0) / 1000).toFixed(0)}K
+                      <span className={`text-sm font-semibold ${safeNumber((txn as any).pnl_ngn || txn.pnl_realized, 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {safeNumber((txn as any).pnl_ngn || txn.pnl_realized, 0) >= 0 ? '+' : ''}{formatLargeNumber(safeNumber((txn as any).pnl_ngn || txn.pnl_realized, 0), 'NGN')}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -392,7 +393,7 @@ function TransactionForm({
               <input
                 type="number"
                 value={transaction.amount_ngn}
-                onChange={(e) => updateField('amount_ngn', Number(e.target.value))}
+                onChange={(e) => updateField('amount_ngn', safeNumber(e.target.value, 0))}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -402,7 +403,7 @@ function TransactionForm({
               <input
                 type="number"
                 value={transaction.amount_usd}
-                onChange={(e) => updateField('amount_usd', Number(e.target.value))}
+                onChange={(e) => updateField('amount_usd', safeNumber(e.target.value, 0))}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -412,7 +413,7 @@ function TransactionForm({
                 type="number"
                 step="0.01"
                 value={transaction.rate}
-                onChange={(e) => updateField('rate', Number(e.target.value))}
+                onChange={(e) => updateField('rate', safeNumber(e.target.value, 0))}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -421,7 +422,7 @@ function TransactionForm({
               <input
                 type="number"
                 value={transaction.pnl_ngn || 0}
-                onChange={(e) => updateField('pnl_ngn', Number(e.target.value))}
+                onChange={(e) => updateField('pnl_ngn', safeNumber(e.target.value, 0))}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>

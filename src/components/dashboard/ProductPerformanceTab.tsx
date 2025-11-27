@@ -1,31 +1,32 @@
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { productPerformance } from '../../data/dummyData';
 import { DollarSign, TrendingUp, Activity, Award, Sparkles } from 'lucide-react';
+import { safeNumber, formatLargeNumber } from '../../utils/numberHelpers';
 
 export default function ProductPerformanceTab() {
-  const totalPnL = productPerformance.reduce((sum, p) => sum + p.pnl_total_ngn, 0);
-  const totalRevenue = productPerformance.reduce((sum, p) => sum + p.revenue_ngn, 0);
-  const totalTrades = productPerformance.reduce((sum, p) => sum + p.trade_count, 0);
-  const avgSettlement = (productPerformance.reduce((sum, p) => sum + p.settlement_success_rate, 0) / productPerformance.length);
+  const totalPnL = productPerformance.reduce((sum, p) => sum + safeNumber(p.pnl_total_ngn, 0), 0);
+  const totalRevenue = productPerformance.reduce((sum, p) => sum + safeNumber(p.revenue_ngn, 0), 0);
+  const totalTrades = productPerformance.reduce((sum, p) => sum + safeNumber(p.trade_count, 0), 0);
+  const avgSettlement = productPerformance.length > 0 ? (productPerformance.reduce((sum, p) => sum + safeNumber(p.settlement_success_rate, 0), 0) / productPerformance.length) : 0;
 
   const pnlChartData = productPerformance.map(p => ({
     product: p.product_type,
-    realized: p.pnl_realized_ngn / 1000000,
-    unrealized: p.pnl_unrealized_ngn / 1000000,
-    total: p.pnl_total_ngn / 1000000,
+    realized: safeNumber(p.pnl_realized_ngn, 0) / 1000000,
+    unrealized: safeNumber(p.pnl_unrealized_ngn, 0) / 1000000,
+    total: safeNumber(p.pnl_total_ngn, 0) / 1000000,
   }));
 
   const volumeChartData = productPerformance.map(p => ({
     product: p.product_type,
-    volume: p.trade_volume_ngn / 1000000000,
-    trades: p.trade_count,
-    avgSize: p.avg_trade_size_ngn / 1000000,
+    volume: safeNumber(p.trade_volume_ngn, 0) / 1000000000,
+    trades: safeNumber(p.trade_count, 0),
+    avgSize: safeNumber(p.avg_trade_size_ngn, 0) / 1000000,
   }));
 
   const profitabilityData = productPerformance.map(p => ({
     product: p.product_type,
-    ratio: p.profitability_ratio,
-    marketShare: p.market_share_estimate,
+    ratio: safeNumber(p.profitability_ratio, 0),
+    marketShare: safeNumber(p.market_share_estimate, 0),
   }));
 
   return (
@@ -41,7 +42,7 @@ export default function ProductPerformanceTab() {
             <DollarSign className="w-5 h-5 text-green-600" />
             <span className="text-sm text-gray-500">Total P&L</span>
           </div>
-          <p className="text-2xl font-bold text-green-600">₦{(totalPnL / 1000000).toFixed(1)}M</p>
+          <p className="text-2xl font-bold text-green-600">{formatLargeNumber(totalPnL, 'NGN')}</p>
           <p className="text-xs text-gray-400 mt-1">Across all products</p>
         </div>
 
@@ -50,7 +51,7 @@ export default function ProductPerformanceTab() {
             <TrendingUp className="w-5 h-5 text-blue-600" />
             <span className="text-sm text-gray-500">Total Revenue</span>
           </div>
-          <p className="text-2xl font-bold text-blue-600">₦{(totalRevenue / 1000000).toFixed(1)}M</p>
+          <p className="text-2xl font-bold text-blue-600">{formatLargeNumber(totalRevenue, 'NGN')}</p>
           <p className="text-xs text-gray-400 mt-1">Daily revenue</p>
         </div>
 
@@ -59,7 +60,7 @@ export default function ProductPerformanceTab() {
             <Activity className="w-5 h-5 text-orange-600" />
             <span className="text-sm text-gray-500">Total Trades</span>
           </div>
-          <p className="text-2xl font-bold text-orange-600">{totalTrades}</p>
+          <p className="text-2xl font-bold text-orange-600">{safeNumber(totalTrades, 0)}</p>
           <p className="text-xs text-gray-400 mt-1">Trades executed</p>
         </div>
 
@@ -68,7 +69,7 @@ export default function ProductPerformanceTab() {
             <Award className="w-5 h-5 text-purple-600" />
             <span className="text-sm text-gray-500">Settlement Rate</span>
           </div>
-          <p className="text-2xl font-bold text-purple-600">{avgSettlement.toFixed(1)}%</p>
+          <p className="text-2xl font-bold text-purple-600">{safeNumber(avgSettlement, 0).toFixed(1)}%</p>
           <p className="text-xs text-gray-400 mt-1">Average success rate</p>
         </div>
       </div>
@@ -142,41 +143,41 @@ export default function ProductPerformanceTab() {
               {productPerformance.map((product) => (
                 <tr key={product.product_type} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 font-medium text-gray-900">{product.product_type}</td>
-                  <td className="text-right py-3 px-4 text-gray-600">{product.trade_count}</td>
+                  <td className="text-right py-3 px-4 text-gray-600">{safeNumber(product.trade_count, 0)}</td>
                   <td className="text-right py-3 px-4 text-gray-600">
-                    ₦{(product.trade_volume_ngn / 1000000000).toFixed(2)}B
+                    {formatLargeNumber(safeNumber(product.trade_volume_ngn, 0), 'NGN')}
                   </td>
                   <td className="text-right py-3 px-4 font-semibold text-green-600">
-                    ₦{(product.pnl_total_ngn / 1000000).toFixed(1)}M
+                    {formatLargeNumber(safeNumber(product.pnl_total_ngn, 0), 'NGN')}
                   </td>
                   <td className="text-right py-3 px-4 text-gray-600">
-                    ₦{(product.revenue_ngn / 1000000).toFixed(1)}M
+                    {formatLargeNumber(safeNumber(product.revenue_ngn, 0), 'NGN')}
                   </td>
                   <td className="text-right py-3 px-4 font-medium text-blue-600">
-                    {product.profitability_ratio.toFixed(2)}x
+                    {safeNumber(product.profitability_ratio, 0).toFixed(2)}x
                   </td>
                   <td className="text-right py-3 px-4 text-gray-600">
-                    {product.settlement_success_rate.toFixed(1)}%
+                    {safeNumber(product.settlement_success_rate, 0).toFixed(1)}%
                   </td>
                   <td className="text-right py-3 px-4 text-gray-600">
-                    {product.market_share_estimate.toFixed(1)}%
+                    {safeNumber(product.market_share_estimate, 0).toFixed(1)}%
                   </td>
                 </tr>
               ))}
               <tr className="bg-gray-50 font-semibold">
                 <td className="py-3 px-4 text-gray-900">Total</td>
-                <td className="text-right py-3 px-4 text-gray-900">{totalTrades}</td>
+                <td className="text-right py-3 px-4 text-gray-900">{safeNumber(totalTrades, 0)}</td>
                 <td className="text-right py-3 px-4 text-gray-900">
-                  ₦{(productPerformance.reduce((sum, p) => sum + p.trade_volume_ngn, 0) / 1000000000).toFixed(2)}B
+                  {formatLargeNumber(productPerformance.reduce((sum, p) => sum + safeNumber(p.trade_volume_ngn, 0), 0), 'NGN')}
                 </td>
                 <td className="text-right py-3 px-4 text-green-600">
-                  ₦{(totalPnL / 1000000).toFixed(1)}M
+                  {formatLargeNumber(totalPnL, 'NGN')}
                 </td>
                 <td className="text-right py-3 px-4 text-gray-900">
-                  ₦{(totalRevenue / 1000000).toFixed(1)}M
+                  {formatLargeNumber(totalRevenue, 'NGN')}
                 </td>
                 <td className="text-right py-3 px-4 text-gray-900">-</td>
-                <td className="text-right py-3 px-4 text-gray-900">{avgSettlement.toFixed(1)}%</td>
+                <td className="text-right py-3 px-4 text-gray-900">{safeNumber(avgSettlement, 0).toFixed(1)}%</td>
                 <td className="text-right py-3 px-4 text-gray-900">-</td>
               </tr>
             </tbody>
@@ -191,22 +192,22 @@ export default function ProductPerformanceTab() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">Counterparties</span>
-                <span className="text-sm font-medium text-gray-900">{product.active_counterparties}</span>
+                <span className="text-sm font-medium text-gray-900">{safeNumber(product.active_counterparties, 0)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">Avg Size</span>
                 <span className="text-sm font-medium text-gray-900">
-                  ₦{(product.avg_trade_size_ngn / 1000000).toFixed(0)}M
+                  {formatLargeNumber(safeNumber(product.avg_trade_size_ngn, 0), 'NGN')}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">Confirm Time</span>
-                <span className="text-sm font-medium text-gray-900">{product.confirmation_time_avg.toFixed(1)}h</span>
+                <span className="text-sm font-medium text-gray-900">{safeNumber(product.confirmation_time_avg, 0).toFixed(1)}h</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">Failures</span>
-                <span className={`text-sm font-medium ${product.settlement_failure_count === 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {product.settlement_failure_count}
+                <span className={`text-sm font-medium ${safeNumber(product.settlement_failure_count, 0) === 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {safeNumber(product.settlement_failure_count, 0)}
                 </span>
               </div>
             </div>

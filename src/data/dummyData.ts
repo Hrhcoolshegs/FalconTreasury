@@ -138,6 +138,10 @@ const banks = ['GTBank', 'UBA', 'Fidelity', 'Union', 'Stanbic', 'Wema', 'Sterlin
 for (let i = 4; i <= 50; i++) {
   const sector = sectors[Math.floor(Math.random() * sectors.length)];
   const name = sector === 'Bank' ? `${banks[i % banks.length]} Bank` : `${sector} Ltd ${i}`;
+  const exposureNGN = Math.floor(Math.random() * 900000000) + 100000000;
+  const exposureUSD = Math.floor(Math.random() * 900000) + 100000;
+  const totalVolumeNGN = Math.floor(Math.random() * 15000000000) + 5000000000;
+  const totalVolumeUSD = Math.floor(Math.random() * 10000000) + 3000000;
 
   additionalCounterparties.push({
     counterparty_id: `CP-NG-${String(i).padStart(3, '0')}`,
@@ -149,16 +153,16 @@ for (let i = 4; i <= 50; i++) {
     city: i % 3 === 0 ? 'Abuja' : 'Lagos',
     internal_rating: ['A', 'B+', 'B', 'C+'][Math.floor(Math.random() * 4)],
     external_rating: ['AA-', 'A+', 'BBB+', 'BB'][Math.floor(Math.random() * 4)],
-    exposure_ngn: Math.floor(Math.random() * 900000000) + 100000000,
-    exposure_usd: Math.floor(Math.random() * 900000) + 100000,
+    exposure_ngn: exposureNGN,
+    exposure_usd: exposureUSD,
     exposure_limit_ngn: 1000000000,
     exposure_limit_usd: 1000000,
-    utilization_percentage: Math.floor(Math.random() * 60) + 30,
+    utilization_percentage: Math.floor((exposureNGN / 1000000000) * 100),
     settlement_reliability: Math.floor(Math.random() * 20) + 75,
     avg_confirmation_time: Math.random() * 4 + 1,
     total_trades_ytd: Math.floor(Math.random() * 150) + 50,
-    total_volume_ytd_ngn: Math.floor(Math.random() * 15000000000) + 5000000000,
-    total_volume_ytd_usd: Math.floor(Math.random() * 10000000) + 3000000,
+    total_volume_ytd_ngn: totalVolumeNGN,
+    total_volume_ytd_usd: totalVolumeUSD,
     outstanding_trades: Math.floor(Math.random() * 15),
     last_trade_date: '2025-11-25',
     onboarding_date: '2023-05-15',
