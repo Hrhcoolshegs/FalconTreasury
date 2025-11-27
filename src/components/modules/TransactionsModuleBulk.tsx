@@ -3,11 +3,14 @@ import { Trade } from '../../types';
 import { Search, Plus, Edit2, Trash2, X, Save, AlertCircle, Download, Upload, CheckSquare, Square, Menu } from 'lucide-react';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useCounterparties } from '../../hooks/useCounterparties';
+import { useDateFilter } from '../../hooks/useDateFilter';
+import DateRangeFilter from '../common/DateRangeFilter';
 import { format } from 'date-fns';
 
 export default function TransactionsModuleBulk() {
   const { transactions, createTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { counterparties } = useCounterparties();
+  const { dateRange, setDateRange, filterByDate } = useDateFilter('transactions-date-filter');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<string>('All');
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
@@ -25,7 +28,11 @@ export default function TransactionsModuleBulk() {
   const statuses = ['All', 'Confirmed', 'Pending', 'Settled', 'Failed'];
 
   const filteredTransactions = useMemo(() => {
-    return transactions.filter(txn => {
+    // First filter by date
+    const dateFiltered = filterByDate(transactions, 'trade_date');
+
+    // Then apply other filters
+    return dateFiltered.filter(txn => {
       const matchesSearch =
         txn.trade_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         txn.counterparty_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -34,7 +41,7 @@ export default function TransactionsModuleBulk() {
 
       return matchesSearch && matchesProduct && matchesStatus;
     });
-  }, [transactions, searchTerm, selectedProduct, selectedStatus]);
+  }, [transactions, searchTerm, selectedProduct, selectedStatus, filterByDate]);
 
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
@@ -303,6 +310,11 @@ export default function TransactionsModuleBulk() {
                   <option key={status} value={status}>{status}</option>
                 ))}
               </select>
+              <DateRangeFilter
+                value={dateRange}
+                onChange={setDateRange}
+                label="Trade Date"
+              />
             </div>
           </div>
 
