@@ -79,17 +79,10 @@ const menuGroups: MenuGroup[] = [
       { id: 'workflows', label: 'Workflows', icon: Workflow, component: WorkflowsModule },
     ],
   },
-  {
-    id: 'reporting',
-    label: 'Reporting',
-    icon: FileText,
-    items: [
-      { id: 'reports', label: 'Reports', icon: FileText, component: ReportsModuleEnhanced },
-    ],
-  },
 ];
 
 const bottomStandaloneItems: MenuItem[] = [
+  { id: 'reports', label: 'Reports', icon: FileText, component: ReportsModuleEnhanced, standalone: true },
   { id: 'knowledge', label: 'Knowledge Centre', icon: BookOpen, component: KnowledgeCentreModule, standalone: true },
   { id: 'settings', label: 'Settings', icon: SettingsIcon, component: Settings, standalone: true },
 ];
