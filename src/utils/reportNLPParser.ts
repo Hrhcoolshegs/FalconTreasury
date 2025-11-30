@@ -21,8 +21,10 @@ interface ParsedReport {
 export class ReportNLPParser {
   // Entity dictionaries
   private static counterpartyNames = [
-    'firstbank', 'access bank', 'zenith', 'gtbank', 'uba', 'stanbic',
-    'union bank', 'fidelity', 'wema', 'sterling', 'fcmb', 'ecobank'
+    'firstbank', 'first bank', 'access bank', 'access', 'zenith', 'zenith bank',
+    'gtbank', 'gt bank', 'guaranty trust', 'uba', 'united bank', 'stanbic',
+    'union bank', 'fidelity', 'fidelity bank', 'wema', 'wema bank', 'sterling',
+    'sterling bank', 'fcmb', 'ecobank', 'standard chartered', 'citibank'
   ];
 
   private static productTypes = {

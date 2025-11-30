@@ -18,6 +18,79 @@ interface KnowledgeArticle {
 const knowledgeBase: KnowledgeArticle[] = [
   {
     id: 'KB-001',
+    title: 'How to Create a New Counterparty in Falcon',
+    category: 'Training',
+    type: 'guide',
+    description: 'Step-by-step guide to onboarding a new counterparty with complete KYC documentation',
+    content: `**Step-by-Step Process:**
+
+**Step 1: Navigate to Counterparties Module**
+- Click on "Counterparties" in the main navigation menu
+- You'll see the counterparty management screen with existing counterparties
+
+**Step 2: Click "Add New Counterparty"**
+- Find the "+ Add Counterparty" button in the top-right corner
+- Click to open the counterparty creation form
+
+**Step 3: Enter Basic Information**
+- **Counterparty Name**: Full legal entity name (e.g., "Access Bank PLC")
+- **Short Name**: Abbreviated name for quick reference (e.g., "Access")
+- **Sector**: Select from dropdown (Bank, Corporate, Asset Manager, etc.)
+- **Country**: Select primary country of operation
+- **Region**: Geographic region (e.g., "West Africa")
+- **City**: Primary office location
+
+**Step 4: Complete Credit Assessment**
+- **Internal Rating**: Assign rating from AAA to D based on internal analysis
+- **External Rating**: Enter rating from recognized agency (e.g., "AA-")
+- **Risk Category**: Select Low, Medium, or High based on assessment
+- **Exposure Limit (NGN)**: Set maximum exposure in Naira
+- **Exposure Limit (USD)**: Set maximum exposure in US Dollars
+
+**Step 5: Add Contact Information**
+- **Primary Contact Name**: Full name of main contact person
+- **Contact Email**: Business email address
+- **Contact Phone**: Direct phone number with country code
+- **Relationship Manager**: Assign internal RM from dropdown
+
+**Step 6: Configure Trading Parameters**
+- **Product Mix**: Select tradeable products (FX Spot, FX Forward, MM, T-Bills, Bonds)
+- **Preferred Settlement**: Choose T+0, T+1, or T+2
+- **Desk Assignment**: Assign to appropriate trading desk
+
+**Step 7: Complete Compliance Details**
+- **Legal Entity Identifier (LEI)**: 20-character LEI code
+- **SWIFT Code**: 8 or 11-character BIC code
+- **Bank Sort Code**: Local banking identification code
+- **KYC Status**: Mark as "Complete" after verification
+- **KYC Expiry Date**: Set renewal date (typically 1 year from now)
+- **AML Status**: Confirm "Clear" after AML checks
+- **PEP Status**: Check if counterparty is a Politically Exposed Person
+- **Sanction Status**: Confirm "Clear" after sanctions screening
+
+**Step 8: Review and Submit**
+- Review all entered information for accuracy
+- Click "Submit" to create the counterparty
+- System will validate all required fields
+- Confirmation message will appear upon successful creation
+
+**Important Notes:**
+- All fields marked with (*) are mandatory
+- KYC documentation must be uploaded before activation
+- Credit limits must be approved by Risk Management
+- Changes to approved counterparties require authorization
+
+**Common Errors and Solutions:**
+- "LEI already exists": Check if counterparty was previously registered
+- "Invalid SWIFT Code": Verify format is 8 or 11 alphanumeric characters
+- "Exposure limit exceeds global limit": Contact Risk Management for approval`,
+    tags: ['Training', 'Counterparties', 'Onboarding', 'How-To'],
+    readTime: 12,
+    lastUpdated: '2025-11-27',
+    views: 856,
+  },
+  {
+    id: 'KB-002',
     title: 'Understanding the Sentiment Intelligence 5×5 Grid',
     category: 'Analytics',
     type: 'guide',
@@ -198,6 +271,461 @@ const knowledgeBase: KnowledgeArticle[] = [
     readTime: 20,
     lastUpdated: '2025-10-20',
     views: 267,
+  },
+  {
+    id: 'KB-016',
+    title: 'How to Book a New Trade in Falcon',
+    category: 'Training',
+    type: 'guide',
+    description: 'Complete walkthrough for booking FX, MM, and Fixed Income trades',
+    content: `**Step-by-Step Trade Booking Process:**
+
+**Step 1: Navigate to Transactions Module**
+- Click "Transactions" in main navigation
+- Select "Book New Trade" or click the "+" button
+
+**Step 2: Select Trade Type**
+- Choose product: FX Spot, FX Forward, Money Market, T-Bills, or Bonds
+- System will display relevant fields for selected product
+
+**Step 3: Enter Trade Details**
+- **Trade Date**: Select execution date (defaults to today)
+- **Value Date**: Select settlement date (T+0, T+1, T+2)
+- **Counterparty**: Search and select from approved list
+- **Direction**: Buy or Sell
+- **Currency Pair**: Select (e.g., USD/NGN for FX trades)
+
+**Step 4: Enter Amounts**
+- **Amount (NGN)**: Enter notional amount in Naira
+- **Amount (USD)**: Enter USD equivalent
+- **Exchange Rate**: System auto-calculates or enter manually
+- **Interest Rate**: For MM/FI products, enter applicable rate
+
+**Step 5: Trading Details**
+- **Trader Name**: Select from dropdown or defaults to logged-in user
+- **Desk**: Assign to appropriate desk
+- **Book**: Select trading book for P&L allocation
+- **Portfolio**: Assign to portfolio if applicable
+
+**Step 6: Settlement Information**
+- **Settlement Account (NGN)**: Select nostro account
+- **Settlement Account (USD)**: Select USD account
+- **Settlement Method**: RTGS, ACH, or Wire Transfer
+
+**Step 7: Additional Information**
+- **Notes**: Add any special instructions or comments
+- **Reference Number**: External reference if applicable
+- **Broker**: If trade executed through broker
+
+**Step 8: Review and Submit**
+- Review all details on confirmation screen
+- Check amounts, dates, and counterparty information
+- Click "Submit Trade"
+- System generates unique Trade ID
+- Confirmation sent to counterparty if automated
+
+**Important Validations:**
+- Counterparty must have sufficient available limit
+- Value date must be valid business day
+- Exchange rate must be within market tolerance (±2%)
+- Settlement accounts must be active and verified
+
+**Post-Booking Actions:**
+- Trade appears in active trades list
+- Confirmation workflow triggers automatically
+- Exposure limits update in real-time
+- P&L calculation begins
+- Settlement monitoring starts
+
+**Common Issues:**
+- "Insufficient limit": Contact RM to increase counterparty limit
+- "Invalid value date": Check calendar for holidays
+- "Rate out of range": Verify current market rates`,
+    tags: ['Training', 'Trading', 'Transactions', 'How-To'],
+    readTime: 15,
+    lastUpdated: '2025-11-27',
+    views: 724,
+  },
+  {
+    id: 'KB-017',
+    title: 'How to Generate Custom Reports',
+    category: 'Training',
+    type: 'guide',
+    description: 'Using natural language and visual builder to create custom treasury reports',
+    content: `**Creating Custom Reports - Two Methods:**
+
+**Method 1: Natural Language Query**
+
+**Step 1**: Navigate to Reports module
+**Step 2**: Click "Custom Report Builder" tab
+**Step 3**: Enter query in natural language, for example:
+  - "Show me all FX Spot trades with FirstBank in the last 30 days"
+  - "Generate exposure report for high-risk counterparties this quarter"
+  - "Create P&L report by trader for Money Market products"
+
+**Step 4**: Click "Parse & Preview"
+**Step 5**: System interprets query and shows parsed configuration
+**Step 6**: Review filters, metrics, and date range
+**Step 7**: Enter report name and description
+**Step 8**: Click "Save Report Template"
+
+**Method 2: Visual Builder**
+
+**Step 1**: Click "Visual Builder" tab
+**Step 2**: Select Report Type:
+  - Transactions
+  - Counterparties
+  - Exposure
+  - P&L Analysis
+  - Compliance
+  - Liquidity
+
+**Step 3**: Select Metrics (check boxes):
+  - Choose columns to include in report
+  - Hold Ctrl/Cmd for multiple selections
+
+**Step 4**: Set Date Range:
+  - Use date picker or quick options
+  - Options: Today, Last 7 Days, This Month, This Quarter, YTD
+
+**Step 5**: Add Filters (optional):
+  - Product Type
+  - Counterparty
+  - Trader/Desk
+  - Amount thresholds
+  - Risk category
+
+**Step 6**: Configure Grouping:
+  - Group by Product, Counterparty, Trader, or Desk
+  - Multiple grouping levels supported
+
+**Step 7**: Name and Save:
+  - Enter descriptive report name
+  - Add tags for easy searching
+  - Mark as favorite if frequently used
+
+**Running Saved Reports:**
+- Navigate to Custom Reports section
+- Select report from library
+- Click "Generate" to run with current data
+- Export as CSV, PDF, or Excel
+
+**Scheduling Reports:**
+- Open saved report
+- Click "Schedule"
+- Set frequency (Daily, Weekly, Monthly)
+- Add email recipients
+- Reports auto-generate and deliver
+
+**Tips:**
+- Use specific counterparty names for better parsing
+- Include time periods ("last 30 days", "this quarter")
+- Save frequently used reports as templates
+- Use tags to organize report library`,
+    tags: ['Training', 'Reports', 'How-To', 'Custom Reports'],
+    readTime: 18,
+    lastUpdated: '2025-11-27',
+    views: 612,
+  },
+  {
+    id: 'KB-018',
+    title: 'Using Calculate with Falcon AI',
+    category: 'Training',
+    type: 'guide',
+    description: 'Perform financial calculations using AI - pricing, yields, duration, and valuations',
+    content: `**Financial Calculations Made Easy:**
+
+**Accessing the Calculator:**
+- Navigate to Analytics & Intelligence module
+- Click "Calculate with Falcon AI" tab
+- You'll see the calculation interface
+
+**Available Calculations:**
+
+**1. Clean Price Calculation**
+Query: "What is the clean price for trade ID TRD-20251125-001?"
+- Pulls real trade data automatically
+- Calculates market price minus accrued interest
+- Shows price as percentage of par
+- Includes interpretation and reasoning
+
+**2. Yield to Maturity**
+Query: "Calculate yield for 5-year bond at 95% of par with 8% coupon"
+- Computes total return if held to maturity
+- Shows step-by-step calculation
+- Compares YTM to coupon rate
+- Explains discount/premium implications
+
+**3. Duration Calculation**
+Query: "Calculate duration for 3-year bond with 8% coupon"
+- Computes Macaulay duration
+- Calculates Modified duration
+- Shows interest rate sensitivity
+- Assesses interest rate risk level
+
+**4. Accrued Interest**
+Query: "Calculate accrued interest for trade ID TRD-20251125-002"
+- Uses trade data from system
+- Calculates interest since last coupon
+- Shows day count convention
+- Explains settlement implications
+
+**5. Mark-to-Market Valuation**
+Query: "What is the MTM for all FX trades today?"
+- Aggregates current positions
+- Values at current market prices
+- Shows unrealized P&L
+- Provides position analysis
+
+**6. Present Value**
+Query: "Calculate present value of ₦1B at 12% over 2 years"
+- Discounts future cash flows
+- Shows time value of money
+- Calculates discount factor
+- Explains investment implications
+
+**Using Quick Calculations:**
+- Click quick action buttons for common calculations
+- System pre-fills query with latest trade data
+- One-click calculation and results
+
+**Exporting Calculations:**
+- Each result has "Export" button
+- Downloads detailed calculation report
+- Includes all steps and reasoning
+- Suitable for audit trails
+
+**Calculation History:**
+- All calculations saved automatically
+- Review past calculations anytime
+- Re-run with updated data
+- Track calculation trends
+
+**Tips for Best Results:**
+- Reference specific trade IDs for accurate data
+- Include all parameters (rate, years, coupon)
+- Use exact product names
+- Check calculation assumptions in results`,
+    tags: ['Training', 'Calculations', 'AI', 'How-To', 'Falcon AI'],
+    readTime: 14,
+    lastUpdated: '2025-11-27',
+    views: 489,
+  },
+  {
+    id: 'KB-019',
+    title: 'Understanding Workflow Automation',
+    category: 'Training',
+    type: 'guide',
+    description: 'How to launch and monitor automated workflows for operational efficiency',
+    content: `**Workflow Automation in Falcon:**
+
+**Available Workflows:**
+
+**1. Limit Breach Notification**
+- Triggers when counterparty exceeds 90% utilization
+- Sends alerts to Risk Management
+- Escalates if breach exceeds 95%
+- Auto-generates breach report
+
+**2. Trade Confirmation Follow-up**
+- Monitors pending confirmations
+- Sends reminders after 4 hours
+- Escalates unconfirmed trades
+- Tracks confirmation rate
+
+**3. Settlement Monitoring**
+- Tracks settlement status real-time
+- Flags delays beyond SLA
+- Notifies operations team
+- Triggers reconciliation workflow
+
+**4. KYC Renewal Reminder**
+- Identifies expiring KYC (30 days)
+- Sends renewal reminders
+- Tracks compliance status
+- Generates renewal reports
+
+**5. Daily Reconciliation**
+- Auto-reconciles nostro accounts
+- Identifies breaks and exceptions
+- Generates reconciliation report
+- Flags unmatched items
+
+**Launching Workflows:**
+
+**Manual Launch:**
+- Navigate to Workflows module
+- Select workflow from list
+- Click "Launch Workflow"
+- Monitor execution in real-time
+- View completion status
+
+**Automatic Triggers:**
+- Workflows launch based on conditions
+- Time-based (daily, hourly)
+- Event-based (limit breach, delay)
+- Threshold-based (amount, count)
+
+**Monitoring Execution:**
+- Real-time status updates
+- Step-by-step progress tracking
+- Execution time displayed
+- Success/failure notifications
+- Detailed execution logs
+
+**Workflow Configuration:**
+- Set trigger conditions
+- Configure notification recipients
+- Adjust thresholds and timeouts
+- Enable/disable as needed
+- Schedule recurring runs
+
+**Best Practices:**
+- Review workflow logs weekly
+- Adjust thresholds based on patterns
+- Keep notification lists current
+- Monitor execution times
+- Disable unused workflows
+
+**Integration with Falcon AI:**
+- Ask "Launch limit breach workflow"
+- Falcon AI triggers workflow automatically
+- Provides status updates in chat
+- Notifies on completion
+- Shows execution summary`,
+    tags: ['Training', 'Workflows', 'Automation', 'How-To'],
+    readTime: 12,
+    lastUpdated: '2025-11-27',
+    views: 445,
+  },
+  {
+    id: 'KB-020',
+    title: 'Falcon AI Assistant - Complete User Guide',
+    category: 'Training',
+    type: 'guide',
+    description: 'Master the AI assistant for queries, calculations, reports, and workflow automation',
+    content: `**Your Intelligent Treasury Assistant:**
+
+**Accessing Falcon AI:**
+- Click the pulsing blue button (bottom-right)
+- AI assistant opens in floating window
+- Drag to reposition anywhere on screen
+- Maximize for full-screen view
+- Minimize when not needed
+
+**What Falcon AI Can Do:**
+
+**1. Answer Questions**
+Ask about any treasury metric or status:
+- "What is the liquidity forecast?"
+- "Show me limit breaches"
+- "Tell me about FirstBank"
+- "What is our compliance status?"
+
+**2. Perform Calculations**
+Request financial computations:
+- "Calculate yield for 5-year bond at 95%"
+- "What is the MTM for today's trades?"
+- "Calculate duration for 3-year bond"
+
+**3. Generate Reports**
+Create reports with natural language:
+- "Generate P&L report by trader this month"
+- "Show all high-risk counterparties"
+- "Export trades with FirstBank this quarter"
+
+**4. Launch Workflows**
+Trigger automated processes:
+- "Launch limit breach workflow"
+- "Run daily reconciliation"
+- "Start KYC renewal process"
+
+**5. Provide Guidance**
+Get help with system functions:
+- "How do I book a new trade?"
+- "How do I create a counterparty?"
+- "How do I generate custom reports?"
+
+**Knowledge Base Coverage:**
+Falcon AI has comprehensive knowledge of:
+- All 50 counterparties with full profiles
+- 5 product lines (FX Spot, Forward, MM, T-Bills, Bonds)
+- 24 automated workflows
+- Real-time risk metrics and exposures
+- Liquidity forecasting and analysis
+- Settlement analytics and delays
+- Compliance status (KYC, AML, Sanctions)
+- Market intelligence and trends
+
+**Advanced Features:**
+
+**Context-Aware Responses:**
+- Understands current module
+- References recent actions
+- Provides relevant examples
+- Suggests next steps
+
+**Action Buttons:**
+- Responses include actionable buttons
+- "Launch Workflow" triggers automation
+- "View Details" navigates to module
+- "Generate Report" creates document
+
+**Conversation History:**
+- All queries saved in session
+- Scroll to review past responses
+- Copy information as needed
+- Export conversation log
+
+**Suggested Queries:**
+- First-time users see common questions
+- Click suggestion to ask immediately
+- Learn system capabilities quickly
+- Discover hidden features
+
+**Pro Tips:**
+- Be specific with counterparty/product names
+- Include time periods in queries
+- Reference trade IDs for calculations
+- Use complete sentences for best results
+- Ask follow-up questions naturally
+
+**Response Types:**
+
+**Data & Metrics:**
+Falcon AI provides:
+- Current values with trends
+- Percentages and ratios
+- Comparisons to limits/targets
+- Historical context
+
+**Analysis & Insights:**
+- Identifies patterns and anomalies
+- Highlights risks and opportunities
+- Recommends actions
+- Explains implications
+
+**Step-by-Step Guidance:**
+- Numbered procedures
+- Screen references
+- Field explanations
+- Error resolution
+
+**Calculations:**
+- Formula breakdowns
+- Step-by-step math
+- Assumptions stated
+- Interpretations provided
+
+**Privacy & Security:**
+- All interactions logged for audit
+- No sensitive data leaves platform
+- Responses based on role permissions
+- Complies with data policies`,
+    tags: ['Training', 'Falcon AI', 'AI Assistant', 'How-To', 'Complete Guide'],
+    readTime: 20,
+    lastUpdated: '2025-11-27',
+    views: 1043,
   },
 ];
 

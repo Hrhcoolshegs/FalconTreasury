@@ -100,6 +100,11 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
       return;
     }
 
+    if (mode === 'visual' && selectedMetrics.length === 0) {
+      setNotification({ type: 'error', message: 'Please select at least one metric' });
+      return;
+    }
+
     setSaving(true);
     try {
       const reportConfig = {
@@ -109,13 +114,16 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
         groupBy: mode === 'nl' && parsedReport ? parsedReport.groupBy : groupBy,
         sortBy: mode === 'nl' && parsedReport ? parsedReport.sortBy : undefined,
         limit: mode === 'nl' && parsedReport ? parsedReport.limit : undefined,
-        dateRange,
+        dateRange: {
+          start: dateRange.start,
+          end: dateRange.end
+        },
         aggregations: mode === 'nl' && parsedReport ? parsedReport.aggregations : [],
         format: 'csv' as const,
       };
 
       await createReport({
-        user_id: 'demo-user', // Replace with actual user ID from auth
+        user_id: 'demo-user',
         report_name: reportName,
         description: description || null,
         report_config: reportConfig,
@@ -131,8 +139,12 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
         if (onReportCreated) onReportCreated();
         onClose();
       }, 1500);
-    } catch (error) {
-      setNotification({ type: 'error', message: 'Failed to save report template' });
+    } catch (error: any) {
+      console.error('Save report error:', error);
+      setNotification({
+        type: 'error',
+        message: `Failed to save report: ${error.message || 'Unknown error'}`
+      });
     } finally {
       setSaving(false);
     }

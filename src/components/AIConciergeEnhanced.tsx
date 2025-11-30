@@ -13,7 +13,7 @@ interface Message {
 const knowledgeBase: Record<string, string> = {
   'liquidity forecast': 'Based on the latest ML models:\n\n• 7-day forecast: ₦27.8B (confidence: 92%)\n• 14-day forecast: ₦28.5B (confidence: 85%)\n• 30-day forecast: ₦29.2B (confidence: 78%)\n• Current buffer: 31.5% (healthy)\n\nThe liquidity position looks stable with adequate buffers across all timeframes.',
 
-  'limit breach': 'I found 3 counterparties with exposure utilization above 90%:\n\n• Zenith Bank: 95.0% (₦950M / ₦1B)\n• Access Bank: 92.3% (₦738M / ₦800M)\n• FirstBank: 91.8% (₦825M / ₦900M)\n\nRecommendation: Review limits or reduce exposure to avoid breaches.',
+  'limit': 'I found 3 counterparties with exposure utilization above 90%:\n\n• Zenith Bank: 95.0% (₦950M / ₦1B)\n• Access Bank: 92.3% (₦738M / ₦800M)\n• FirstBank: 91.8% (₦825M / ₦900M)\n\nRecommendation: Review limits or reduce exposure to avoid breaches.',
 
   'settlement delays': 'Settlement Analysis (Last 30 Days):\n\n• Average confirmation time: 2.3 hours\n• On-time settlement rate: 94.2%\n• Delayed settlements: 8 trades (₦2.4B)\n• Failed settlements: 2 trades (₦450M)\n\nTop causes: Documentation issues (50%), System delays (30%), Counterparty issues (20%)',
 
@@ -25,7 +25,7 @@ const knowledgeBase: Record<string, string> = {
 
   'counterparty': 'Counterparty Overview:\n\n• Total active: 50 counterparties\n• Banks: 35 (70%)\n• Corporates: 10 (20%)\n• Asset Managers: 5 (10%)\n• Average exposure: ₦1.2B\n• KYC expiring <30 days: 3\n\nAll counterparties are in good standing.',
 
-  'workflow': 'Active Workflows:\n\n• Total: 24 workflows\n• Automated: 15 (62.5%)\n• Manual: 9 (37.5%)\n• Avg completion: 87.5%\n• Avg execution time: 4.2 seconds\n\nWorkflow efficiency is strong across the platform.',
+  'workflows': 'Active Workflows:\n\n• Total: 24 workflows\n• Automated: 15 (62.5%)\n• Manual: 9 (37.5%)\n• Avg completion: 87.5%\n• Avg execution time: 4.2 seconds\n\nWorkflow efficiency is strong across the platform.',
 
   'attribution': 'P&L Attribution (MTD):\n\n• Top Desk: FX Desk A (₦285M)\n• Top Trader: Aisha Bello (₦142M)\n• Top Product: Money Market (₦320M)\n• Top Counterparty: FirstBank (₦95M)\n\nStrong performance across all dimensions.',
 
@@ -53,7 +53,7 @@ const knowledgeBase: Record<string, string> = {
 
   'treasury': 'Treasury Overview:\n\n• Total P&L: ₦765M MTD\n• Revenue: ₦2.1B\n• Avg margin: 36.4%\n• Total trades: 4,870\n• Settlement success: 96.8%\n\nStrong overall treasury performance.',
 
-  'dashboard': 'Dashboard Summary:\n\n• All modules: Operational\n• Data freshness: Real-time\n• System health: 99.2%\n• Active users: 42\n• Last update: 2 minutes ago\n\nPlatform running smoothly.',
+  'overview': 'Dashboard Summary:\n\n• All modules: Operational\n• Data freshness: Real-time\n• System health: 99.2%\n• Active users: 42\n• Last update: 2 minutes ago\n\nPlatform running smoothly.',
 
   'firstbank': 'FirstBank Profile:\n\n• Exposure: ₦850M (85% utilization)\n• Rating: A (internal), AA- (external)\n• Trades YTD: 145\n• Volume: ₦15B\n• Settlement: 92.5% reliability\n• Products: FX Spot, FX Forward, MM\n\nTop-tier counterparty.',
 
@@ -74,6 +74,44 @@ const knowledgeBase: Record<string, string> = {
   'aml': 'AML Status:\n\n• All counterparties: Clear\n• Sanctions screening: Current\n• PEP checks: Complete\n• Transaction monitoring: Active\n• Suspicious activity: 0 reports\n\nFull AML compliance maintained.',
 
   'stress test': 'Stress Test Results:\n\n• Scenario 1 (Market shock): Pass\n• Scenario 2 (Liquidity crisis): Pass\n• Scenario 3 (Credit event): Pass\n• Scenario 4 (Combined): Warning\n• Capital adequacy: 125% (target: 120%)\n\nResilience confirmed under most scenarios.',
+
+  'trade id': 'Trade Lookup:\n\nTo find a specific trade, provide the trade ID format: TRD-YYYYMMDD-XXX\n\nExample: "Show me trade ID TRD-20251125-001"\n\nI can provide:\n• Complete trade details\n• Current status and settlement\n• P&L and MTM valuation\n• Counterparty information\n• Confirmation status\n• Related transactions',
+
+  'calculate': 'Financial Calculations Available:\n\n**Navigate to Analytics & Intelligence > Calculate with Falcon AI**\n\nI can help calculate:\n• Clean Price (market price - accrued interest)\n• Yield to Maturity (total return if held)\n• Duration (interest rate sensitivity)\n• Accrued Interest (interest earned between coupons)\n• Mark-to-Market (current position value)\n• Present Value (discounted cash flows)\n\nExample: "Calculate yield for 5-year bond at 95% of par"',
+
+  'how do i': 'Training & Guidance:\n\n**Visit Knowledge Centre for step-by-step guides:**\n\n• How to create a counterparty\n• How to book a new trade\n• How to generate custom reports\n• How to launch workflows\n• How to use Calculate with Falcon AI\n• How to monitor settlements\n• How to manage exposures\n\nAll guides include screen references, field explanations, and error resolution tips.',
+
+  'help': 'Falcon AI Help:\n\n**I can assist with:**\n\n1. **Data & Metrics**: Ask about any treasury metric\n   - Example: "What is our total exposure?"\n\n2. **Calculations**: Request financial computations\n   - Example: "Calculate duration for 3-year bond"\n\n3. **Reports**: Generate custom reports\n   - Example: "Show trades with FirstBank this month"\n\n4. **Workflows**: Launch automation\n   - Example: "Run limit breach workflow"\n\n5. **Training**: Get step-by-step guidance\n   - Example: "How do I book a trade?"\n\n6. **Analysis**: Get insights and recommendations\n   - Example: "Analyze settlement performance"\n\nFor detailed help, visit the Knowledge Centre.',
+
+  'report': 'Custom Report Generation:\n\n**Quick Report Examples:**\n• "Generate trades report for today"\n• "Show all high-risk counterparties"\n• "Create P&L report by trader this month"\n• "Export exposure report by sector"\n• "List pending settlements"\n\n**Navigate to Reports Module:**\n- Use Natural Language Builder\n- Or Visual Report Builder\n- Save templates for reuse\n- Schedule automatic delivery\n- Export as CSV, PDF, or Excel\n\nI can also guide you through creating complex reports!',
+
+  'clean price': 'Clean Price Calculation:\n\n**What it is:**\nBond price excluding accrued interest\n\n**Formula:**\nClean Price = Dirty Price - Accrued Interest\n\n**To Calculate:**\nNavigate to: Analytics & Intelligence > Calculate with Falcon AI\n\nQuery: "What is the clean price for trade ID TRD-20251125-001?"\n\nSystem will:\n• Pull trade data automatically\n• Calculate accrued interest\n• Compute clean price\n• Show as % of par\n• Provide detailed explanation\n\n**Use Cases:**\n- Bond pricing quotes\n- Portfolio valuation\n- Trade booking reference\n- Performance measurement',
+
+  'yield': 'Yield to Maturity (YTM):\n\n**Definition:**\nTotal return anticipated if bond held until maturity\n\n**To Calculate:**\nGo to: Analytics & Intelligence > Calculate with Falcon AI\n\nExample Query:\n"Calculate yield for 5-year bond at 95% of par with 8% coupon"\n\n**What You Get:**\n• YTM percentage\n• Step-by-step calculation\n• Comparison to coupon rate\n• Premium/discount analysis\n• Investment implications\n\n**Key Insights:**\n- YTM > Coupon = Bond at discount\n- YTM < Coupon = Bond at premium\n- YTM = Coupon = Bond at par',
+
+  'duration': 'Duration Calculation:\n\n**What it measures:**\nBond price sensitivity to interest rate changes\n\n**Types:**\n• Macaulay Duration: Weighted average time to cash flows\n• Modified Duration: Price change for 1% rate change\n\n**To Calculate:**\nNavigate: Analytics & Intelligence > Calculate with Falcon AI\n\nExample: "Calculate duration for 3-year bond with 8% coupon"\n\n**Result includes:**\n• Duration in years\n• Interest rate risk level\n• Price volatility estimate\n• Portfolio management insights\n\n**Risk Categories:**\n- Duration < 3 years: Low risk\n- Duration 3-5 years: Moderate risk\n- Duration > 5 years: High risk',
+
+  'mtm': 'Mark-to-Market Valuation:\n\n**Current MTM Status:**\n• Total portfolio MTM updated real-time\n• Unrealized P&L tracked daily\n• Position-level valuations\n• Currency-specific exposures\n\n**To Calculate:**\nGo to: Analytics & Intelligence > Calculate with Falcon AI\n\nQuery: "Calculate MTM for all trades today"\n\nOr ask: "What is the MTM for trade ID TRD-20251125-001?"\n\n**MTM Components:**\n- Current market prices\n- Exchange rate movements\n- Interest rate changes\n- Credit spread adjustments\n\n**View Full MTM:**\nDashboard > Treasury Overview > MTM section',
+
+  'settlement': 'Settlement Monitoring:\n\n**Current Status:**\n• Average confirmation time: 2.3 hours\n• On-time settlement rate: 94.2%\n• Pending settlements tracked real-time\n• Failed trades flagged immediately\n\n**Common Delays:**\n1. Documentation issues (50%)\n2. System delays (30%)\n3. Counterparty issues (20%)\n\n**To Monitor:**\n- Dashboard > Settlement panel\n- Transactions > Filter by "Pending"\n- Workflow > Settlement Monitoring\n\n**Get Alerts:**\nWorkflows auto-trigger for:\n• Delays beyond 4 hours\n• Failed settlements\n• Missing confirmations\n• Unmatched payments',
+
+  'book trade': 'Booking a New Trade:\n\n**Quick Steps:**\n1. Navigate to Transactions module\n2. Click "+ Book New Trade"\n3. Select product type\n4. Enter counterparty and amounts\n5. Set dates and rates\n6. Review and submit\n\n**For Detailed Guide:**\nKnowledge Centre > "How to Book a New Trade"\n\n**Includes:**\n• Screen-by-screen walkthrough\n• Field explanations\n• Validation rules\n• Common errors and solutions\n• Post-booking actions\n\n**Quick Validation:**\n- Counterparty limit available?\n- Valid business day?\n- Rate within tolerance?\n- Settlement accounts active?',
+
+  'create counterparty': 'Creating a New Counterparty:\n\n**Quick Process:**\n1. Go to Counterparties module\n2. Click "+ Add Counterparty"\n3. Complete 8-step form:\n   - Basic Information\n   - Credit Assessment\n   - Contact Details\n   - Trading Parameters\n   - Compliance Details\n   - Review & Submit\n\n**For Complete Guide:**\nKnowledge Centre > "How to Create a New Counterparty"\n\n**Detailed guide includes:**\n• Required vs optional fields\n• Field-by-field explanations\n• Compliance requirements\n• Validation rules\n• Error resolution\n• Approval workflow\n\n**Prerequisites:**\n- KYC documentation\n- Credit approval\n- Risk assessment\n- Sanctions screening',
+
+  'limit breach': 'Limit Breach Management:\n\n**Current Breaches:**\n• Zenith Bank: 95.0% utilization\n• Access Bank: 92.3% utilization\n• FirstBank: 91.8% utilization\n\n**Breach Levels:**\n• 90-94%: Warning (monitor closely)\n• 95-99%: Critical (immediate action)\n• 100%+: Breach (trading stopped)\n\n**Automatic Actions:**\n- Alerts sent to Risk Management\n- Trading desk notified\n- Breach report generated\n- Limit review triggered\n\n**To Launch Workflow:**\nSay: "Launch limit breach workflow"\n\nOr navigate: Workflows > Limit Breach Notification\n\n**Resolution Options:**\n- Increase counterparty limit\n- Reduce exposure\n- Close out positions\n- Request collateral',
+
+  'exposure': 'Exposure Management:\n\n**Current Exposure:**\n• Total: ₦60.4B across 50 counterparties\n• Avg utilization: 67.5%\n• High utilization (>90%): 3 counterparties\n• Concentration (Top 3): 68%\n\n**By Sector:**\n• Banks: ₦42.3B (70%)\n• Corporates: ₦12.1B (20%)\n• Asset Managers: ₦4.8B (8%)\n• Others: ₦1.2B (2%)\n\n**Risk Metrics:**\n• VaR (95%): ₦6.9B\n• Composite risk score: 68.5/100\n• Credit concentration within limits\n\n**To Monitor:**\n- Dashboard > Exposure Overview\n- Counterparties > Sort by utilization\n- Reports > Monthly Exposure Report\n\n**Real-time tracking ensures compliance with all limits.**',
+
+  'p&l': 'Profit & Loss Analysis:\n\n**Current P&L (MTD):**\n• Total: ₦765M\n• Daily average: ₦28.3M\n• Winning trades: 73%\n• Avg margin: 36.4 bps\n\n**By Product:**\n• Money Market: ₦320M (highest)\n• FX Forward: ₦165M\n• FX Spot: ₦140M\n• T-Bills: ₦75M\n• Bonds: ₦65M\n\n**By Desk:**\n• FX Desk A: ₦285M\n• MM Desk: ₦320M\n• FX Desk B: ₦190M\n\n**Top Traders:**\n1. Aisha Bello: ₦142M\n2. Emeka Okonkwo: ₦118M\n3. Fatima Yusuf: ₦95M\n\n**View Detailed P&L:**\n- Dashboard > Product Performance\n- Reports > Weekly P&L Report\n- Analytics > Attribution Engine',
+
+  'training': 'Training & Support:\n\n**Knowledge Centre:**\n20+ comprehensive guides covering:\n• System navigation\n• Trade booking procedures\n• Counterparty management\n• Report generation\n• Workflow automation\n• Financial calculations\n• Compliance processes\n• Risk management\n\n**Guide Types:**\n• Step-by-step tutorials\n• Video simulations\n• Screen references\n• Field explanations\n• Troubleshooting tips\n• Best practices\n\n**Access Training:**\nNavigate to Knowledge Centre module\n\nOr ask me:\n• "How do I book a trade?"\n• "How do I create a counterparty?"\n• "How do I generate reports?"\n• "How do I use workflows?"\n\nI\'ll guide you through any process!',
+
+  'workflow': 'Automated Workflows:\n\n**24 Active Workflows:**\n• 15 Automated (62.5%)\n• 9 Manual trigger\n• Avg execution: 4.2 seconds\n• Success rate: 98.7%\n\n**Popular Workflows:**\n1. Limit Breach Notification\n2. Trade Confirmation Follow-up\n3. Settlement Monitoring\n4. KYC Renewal Reminder\n5. Daily Reconciliation\n\n**To Launch:**\nSay: "Launch [workflow name]"\nExample: "Run daily reconciliation"\n\nOr navigate: Workflows module\n\n**Benefits:**\n• 24/7 monitoring\n• Instant notifications\n• Automatic escalation\n• Audit trail\n• Time savings\n\n**For Details:**\nKnowledge Centre > "Understanding Workflow Automation"',
+
+  'api': 'API & Integrations:\n\n**Falcon Treasury API:**\n• RESTful API architecture\n• JWT authentication\n• Real-time data access\n• Webhook support\n• Rate limiting: 1000 req/min\n\n**Available Endpoints:**\n• /trades - Trade operations\n• /counterparties - CP management\n• /exposure - Exposure data\n• /reports - Report generation\n• /workflows - Workflow triggers\n\n**Common Integrations:**\n• Swift for confirmations\n• RTGS for settlements\n• Market data feeds\n• Accounting systems\n• Risk platforms\n\n**Documentation:**\nNavigate to Settings > API Documentation\n\nOr contact: api-support@falcon.ng',
+
+  'dashboard': 'Dashboard Overview:\n\n**Real-time Metrics:**\n• Treasury overview with key metrics\n• Product performance analysis\n• Risk exposure monitoring\n• Settlement tracking\n• Liquidity positions\n• P&L summary\n\n**Customization:**\n• Drag-and-drop widgets\n• Custom date ranges\n• Filter by product/desk\n• Export to Excel/PDF\n• Set alerts and thresholds\n\n**Quick Actions:**\n• Book new trade\n• View exposures\n• Check settlements\n• Run workflows\n• Generate reports\n\n**Dashboard Updates:**\n- Real-time (trades, exposures)\n- Every 5 min (settlements)\n- Hourly (analytics)\n- Daily (reports)\n\nAll modules accessible from dashboard navigation.',
 };
 
 export default function AIConciergeEnhanced() {
@@ -86,7 +124,7 @@ export default function AIConciergeEnhanced() {
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m your Falcon Treasury AI Concierge powered by OMNIS. I have comprehensive knowledge of:\n\n• All 50 counterparties\n• 5 product lines\n• 24 automated workflows\n• Real-time risk metrics\n• Liquidity forecasting\n• Settlement analytics\n• Compliance status\n• Market intelligence\n• And much more!\n\nAsk me anything about your treasury operations.',
+      content: 'Hello! I\'m Falcon AI, your intelligent treasury assistant. I have comprehensive knowledge of:\n\n• All 50 counterparties with complete profiles\n• 5 product lines (FX Spot, FX Forward, MM, T-Bills, Bonds)\n• 24 automated workflows\n• Real-time risk metrics and exposures\n• Liquidity forecasting with ML predictions\n• Settlement analytics and performance\n• Compliance status (KYC, AML, Sanctions)\n• Market intelligence and trends\n• Financial calculations (yields, duration, pricing)\n• Custom report generation\n• Training and how-to guidance\n\nAsk me anything about your treasury operations, request calculations, generate reports, or get help with system functions.',
       timestamp: new Date(),
     },
   ]);
@@ -277,8 +315,8 @@ export default function AIConciergeEnhanced() {
         <div className="flex items-center gap-2">
           <Sparkles className="w-6 h-6" />
           <div>
-            <h3 className="font-semibold">Falcon Treasury AI Concierge</h3>
-            <p className="text-xs text-white/80">Powered by OMNIS</p>
+            <h3 className="font-semibold">Falcon AI</h3>
+            <p className="text-xs text-white/80">Your Intelligent Treasury Assistant</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
