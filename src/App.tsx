@@ -12,7 +12,7 @@ import WorkflowsModule from './components/modules/WorkflowsModule';
 import PredictionEngineModule from './components/modules/PredictionEngineModule';
 import AttributionEngineModule from './components/modules/AttributionEngineModule';
 import ReportsModule from './components/modules/ReportsModule';
-import InsightsModule from './components/modules/InsightsModule';
+import AnalyticsIntelligenceModule from './components/modules/AnalyticsIntelligenceModule';
 import KnowledgeCentreModule from './components/modules/KnowledgeCentreModule';
 import SettingsComponent from './components/Settings';
 import AIConciergeEnhanced from './components/AIConciergeEnhanced';
@@ -24,7 +24,7 @@ const navigation = [
   { id: 'risk', label: 'Risk & Exposure', icon: AlertTriangle, component: RiskExposureModule },
   { id: 'liquidity', label: 'Liquidity', icon: DollarSign, component: LiquidityModule },
   { id: 'sentiment', label: 'Sentiment Intelligence', icon: Activity, component: SentimentIntelligenceModuleEnhanced },
-  { id: 'insights', label: 'Insights Feed', icon: Lightbulb, component: InsightsModule },
+  { id: 'analytics', label: 'Analytics & Intelligence', icon: Lightbulb, component: AnalyticsIntelligenceModule },
   { id: 'behavior', label: 'Behavior Analytics', icon: BarChart3, component: BehaviorAnalyticsModule },
   { id: 'products', label: 'Product Performance', icon: Award, component: ProductPerformanceModuleEnhanced },
   { id: 'predictions', label: 'Predictions', icon: Brain, component: PredictionEngineModule },
