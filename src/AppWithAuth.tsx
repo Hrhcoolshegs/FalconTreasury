@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen, ChevronDown, ChevronRight, LogOut, User, Settings as SettingsIcon, ScrollText } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, AlertTriangle, DollarSign, Activity, BarChart3, Award, Workflow, Brain, Zap, Lightbulb, BookOpen, ChevronDown, ChevronRight, LogOut, User, Settings as SettingsIcon, ScrollText, Calculator } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import TransactionsModuleEnhanced from './components/modules/TransactionsModuleEnhanced';
 import CounterpartiesModuleEnhanced from './components/modules/CounterpartiesModuleEnhanced';
@@ -13,6 +13,7 @@ import PredictionEngineModule from './components/modules/PredictionEngineModule'
 import AttributionEngineModule from './components/modules/AttributionEngineModule';
 import ReportsModuleEnhanced from './components/modules/ReportsModuleEnhanced';
 import InsightsModule from './components/modules/InsightsModule';
+import CalculateWithFalconAI from './components/modules/CalculateWithFalconAI';
 import KnowledgeCentreModule from './components/modules/KnowledgeCentreModule';
 import AuditTrailModule from './components/modules/AuditTrailModule';
 import Profile from './components/Profile';
@@ -66,6 +67,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { id: 'sentiment', label: 'Sentiment Intelligence', icon: Activity, component: SentimentIntelligenceModuleEnhanced },
       { id: 'insights', label: 'Insights Feed', icon: Lightbulb, component: InsightsModule },
+      { id: 'calculate', label: 'Calculate with Falcon AI', icon: Calculator, component: CalculateWithFalconAI },
       { id: 'behavior', label: 'Behavior Analytics', icon: BarChart3, component: BehaviorAnalyticsModule },
       { id: 'products', label: 'Product Performance', icon: Award, component: ProductPerformanceModuleEnhanced },
       { id: 'predictions', label: 'Predictions', icon: Brain, component: PredictionEngineModule },
@@ -133,11 +135,11 @@ function AppWithAuth() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <aside className="w-64 bg-gradient-to-b from-[#1e3a5f] to-[#152a45] text-white flex-shrink-0 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-50 flex">
+      <aside className="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex-shrink-0 flex flex-col shadow-2xl border-r border-slate-700/50">
         <div className="p-6 border-b border-white/10">
-          <h1 className="text-xl font-bold">Falcon Treasury</h1>
-          <p className="text-xs text-white/70 mt-1">Enterprise Intelligence</p>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">Falcon Treasury</h1>
+          <p className="text-xs text-blue-200/80 mt-1">Enterprise Intelligence Platform</p>
         </div>
 
         <nav className="flex-1 p-4 overflow-y-auto">

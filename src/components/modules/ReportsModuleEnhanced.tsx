@@ -73,6 +73,7 @@ export default function ReportsModuleEnhanced() {
   const [selectedFrequency, setSelectedFrequency] = useState<string>('All');
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [showCustomBuilder, setShowCustomBuilder] = useState(false);
 
   const categories = ['All', ...Array.from(new Set(reportTemplates.map(r => r.category)))];
   const frequencies = ['All', ...Array.from(new Set(reportTemplates.map(r => r.frequency)))];
@@ -353,7 +354,46 @@ export default function ReportsModuleEnhanced() {
         )}
 
         {activeTab === 'custom' ? (
-          <CustomReportBuilder />
+          showCustomBuilder ? (
+            <CustomReportBuilder
+              onClose={() => setShowCustomBuilder(false)}
+              onReportCreated={() => {
+                setShowCustomBuilder(false);
+                showNotification('success', 'Custom report saved successfully!');
+              }}
+            />
+          ) : (
+            <div className="bg-white rounded-xl shadow-md p-12 text-center border border-gray-200">
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div className="flex justify-center">
+                  <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
+                    <Plus className="w-16 h-16 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Create Custom Reports</h3>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  Build tailored reports using natural language or our visual builder. Generate reports with custom filters, metrics, and formatting to meet your specific needs.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left max-w-xl mx-auto mt-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-2">Natural Language</h4>
+                    <p className="text-sm text-gray-600">Ask in plain English: "Show all FX trades with FirstBank this month"</p>
+                  </div>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-2">Visual Builder</h4>
+                    <p className="text-sm text-gray-600">Use dropdowns and filters to build complex reports visually</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowCustomBuilder(true)}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg flex items-center gap-3 mx-auto"
+                >
+                  <Plus className="w-6 h-6" />
+                  Create New Custom Report
+                </button>
+              </div>
+            </div>
+          )
         ) : (
           <>
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm">
