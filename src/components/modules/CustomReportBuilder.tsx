@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { Sparkles, Save, X, Play, FileText, Calendar, Filter as FilterIcon, BarChart3, Settings, Wand2, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, Save, X, Play, FileText, Calendar, Filter as FilterIcon, BarChart3, Settings, Wand2, Download, Trash2, Star, Clock, List } from 'lucide-react';
 import { ReportNLPParser } from '../../utils/reportNLPParser';
-import { useCustomReports } from '../../hooks/useCustomReports';
+import { customReportStorage } from '../../utils/customReportStorage';
+import { useTransactions } from '../../hooks/useTransactions';
+import { useCounterparties } from '../../hooks/useCounterparties';
 import DateRangeFilter from '../common/DateRangeFilter';
 import { format } from 'date-fns';
 
@@ -12,13 +14,17 @@ interface CustomReportBuilderProps {
 }
 
 export default function CustomReportBuilder({ onClose, onReportCreated, initialQuery = '' }: CustomReportBuilderProps) {
-  const { createReport } = useCustomReports();
+  const { transactions } = useTransactions();
+  const { counterparties } = useCounterparties();
+  const [view, setView] = useState<'create' | 'list'>('create');
   const [mode, setMode] = useState<'nl' | 'visual'>('nl');
   const [nlQuery, setNlQuery] = useState(initialQuery);
   const [parsedReport, setParsedReport] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [savedReports, setSavedReports] = useState(customReportStorage.getAllReports());
+  const [generatingReportId, setGeneratingReportId] = useState<string | null>(null);
 
   // Visual builder state
   const [reportName, setReportName] = useState('');
@@ -75,6 +81,13 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
     "List counterparties with exposure utilization above 80%",
   ];
 
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
   const handleParseNL = () => {
     if (!nlQuery.trim()) {
       setNotification({ type: 'error', message: 'Please enter a query' });
@@ -94,7 +107,7 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
     if (parsed.groupBy) setGroupBy(parsed.groupBy);
   };
 
-  const handleSaveReport = async () => {
+  const handleSaveReport = () => {
     if (!reportName.trim()) {
       setNotification({ type: 'error', message: 'Please enter a report name' });
       return;
@@ -122,7 +135,7 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
         format: 'csv' as const,
       };
 
-      await createReport({
+      const newReport = customReportStorage.saveReport({
         user_id: 'demo-user',
         report_name: reportName,
         description: description || null,
@@ -134,10 +147,21 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
         tags,
       });
 
-      setNotification({ type: 'success', message: 'Report template saved successfully!' });
+      setSavedReports(customReportStorage.getAllReports());
+      setNotification({ type: 'success', message: `Report "${reportName}" saved successfully!` });
+
+      // Reset form
+      setReportName('');
+      setDescription('');
+      setNlQuery('');
+      setParsedReport(null);
+      setShowPreview(false);
+      setSelectedMetrics([]);
+      setTags([]);
+
       setTimeout(() => {
+        setView('list');
         if (onReportCreated) onReportCreated();
-        onClose();
       }, 1500);
     } catch (error: any) {
       console.error('Save report error:', error);
@@ -150,6 +174,128 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
     }
   };
 
+  const handleGenerateReport = (reportId: string) => {
+    setGeneratingReportId(reportId);
+
+    setTimeout(() => {
+      const report = customReportStorage.getReportById(reportId);
+      if (!report) {
+        setNotification({ type: 'error', message: 'Report not found' });
+        setGeneratingReportId(null);
+        return;
+      }
+
+      // Generate report with real data
+      const reportData = generateReportData(report.report_config);
+      const csvContent = generateCSV(reportData, report.report_config.metrics);
+
+      // Download the report
+      downloadReport(csvContent, report.report_name);
+
+      // Update run statistics
+      customReportStorage.recordRun(reportId);
+      setSavedReports(customReportStorage.getAllReports());
+
+      setNotification({ type: 'success', message: `Report "${report.report_name}" generated successfully!` });
+      setGeneratingReportId(null);
+    }, 1500);
+  };
+
+  const generateReportData = (config: any) => {
+    const { reportType, filters, dateRange } = config;
+
+    if (reportType === 'transactions') {
+      let data = [...transactions];
+
+      // Apply date range filter
+      if (dateRange.start || dateRange.end) {
+        data = data.filter(t => {
+          const tradeDate = new Date(t.trade_date);
+          if (dateRange.start && tradeDate < dateRange.start) return false;
+          if (dateRange.end && tradeDate > dateRange.end) return false;
+          return true;
+        });
+      }
+
+      // Apply other filters
+      filters.forEach((filter: any) => {
+        if (filter.field === 'counterparty_name' && filter.operator === '=') {
+          data = data.filter(t => t.counterparty_name === filter.value);
+        }
+        if (filter.field === 'product' && filter.operator === '=') {
+          data = data.filter(t => t.product === filter.value);
+        }
+        if (filter.field === 'amount_ngn' && filter.operator === '>') {
+          data = data.filter(t => t.amount_ngn > parseFloat(filter.value));
+        }
+      });
+
+      return data;
+    } else if (reportType === 'counterparties') {
+      let data = [...counterparties];
+
+      // Apply filters
+      filters.forEach((filter: any) => {
+        if (filter.field === 'utilization_percentage' && filter.operator === '>') {
+          data = data.filter(c => c.utilization_percentage > parseFloat(filter.value));
+        }
+        if (filter.field === 'risk_category' && filter.operator === '=') {
+          data = data.filter(c => c.risk_category === filter.value);
+        }
+      });
+
+      return data;
+    }
+
+    return [];
+  };
+
+  const generateCSV = (data: any[], metrics: string[]) => {
+    if (data.length === 0) return 'No data available for the selected criteria';
+
+    // CSV Header
+    const headers = metrics.join(',');
+
+    // CSV Rows
+    const rows = data.map(item => {
+      return metrics.map(metric => {
+        const value = item[metric];
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'string' && value.includes(',')) return `"${value}"`;
+        return value;
+      }).join(',');
+    });
+
+    return `${headers}\n${rows.join('\n')}`;
+  };
+
+  const downloadReport = (content: string, reportName: string) => {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${reportName.replace(/\s+/g, '_')}_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDeleteReport = (reportId: string) => {
+    if (confirm('Are you sure you want to delete this report?')) {
+      customReportStorage.deleteReport(reportId);
+      setSavedReports(customReportStorage.getAllReports());
+      setNotification({ type: 'success', message: 'Report deleted successfully' });
+    }
+  };
+
+  const handleToggleFavorite = (reportId: string) => {
+    customReportStorage.toggleFavorite(reportId);
+    setSavedReports(customReportStorage.getAllReports());
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
@@ -157,19 +303,39 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-t-xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-lg">
-              <Wand2 className="w-6 h-6" />
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-t-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Wand2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Custom Report Builder</h2>
+                <p className="text-sm text-white/90">Create and manage custom reports</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold">Custom Report Builder</h2>
-              <p className="text-sm text-white/90">Create custom reports with natural language or visual builder</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setView(view === 'create' ? 'list' : 'create')}
+                className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors flex items-center gap-2"
+              >
+                {view === 'create' ? (
+                  <>
+                    <List className="w-5 h-5" />
+                    View Saved Reports ({savedReports.length})
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="w-5 h-5" />
+                    Create New Report
+                  </>
+                )}
+              </button>
+              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <X className="w-6 h-6" />
+              </button>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <X className="w-6 h-6" />
-          </button>
         </div>
 
         {/* Notification */}
@@ -179,257 +345,348 @@ export default function CustomReportBuilder({ onClose, onReportCreated, initialQ
           </div>
         )}
 
-        {/* Mode Selector */}
-        <div className="flex border-b border-gray-200 px-6">
-          <button
-            onClick={() => setMode('nl')}
-            className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
-              mode === 'nl'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Sparkles className="w-5 h-5" />
-            Natural Language
-          </button>
-          <button
-            onClick={() => setMode('visual')}
-            className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
-              mode === 'visual'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Settings className="w-5 h-5" />
-            Visual Builder
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {mode === 'nl' ? (
-            <div className="space-y-6">
-              {/* Natural Language Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Describe the report you want to create
-                </label>
-                <textarea
-                  value={nlQuery}
-                  onChange={(e) => setNlQuery(e.target.value)}
-                  placeholder="Example: Show me all FX Spot transactions with FirstBank in the last 30 days where volume exceeded ₦1B"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32 resize-none"
-                />
+        {view === 'list' ? (
+          /* Saved Reports List */
+          <div className="flex-1 overflow-y-auto p-6">
+            {savedReports.length === 0 ? (
+              <div className="text-center py-12">
+                <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Saved Reports</h3>
+                <p className="text-gray-600 mb-6">Create your first custom report to get started</p>
+                <button
+                  onClick={() => setView('create')}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md"
+                >
+                  Create New Report
+                </button>
               </div>
-
-              {/* Example Queries */}
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Try these examples:</p>
-                <div className="grid grid-cols-1 gap-2">
-                  {exampleQueries.map((example, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setNlQuery(example)}
-                      className="text-left px-4 py-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all"
-                    >
-                      {example}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Parse Button */}
-              <button
-                onClick={handleParseNL}
-                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md flex items-center justify-center gap-2 font-medium"
-              >
-                <Sparkles className="w-5 h-5" />
-                Parse & Preview Report
-              </button>
-
-              {/* Parsed Preview */}
-              {showPreview && parsedReport && (
-                <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
-                  <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    Parsed Configuration
-                  </h3>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-gray-700">Report Type:</span>
-                      <p className="text-gray-900 capitalize">{parsedReport.reportType}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Report Name:</span>
-                      <p className="text-gray-900">{parsedReport.reportName}</p>
-                    </div>
-                    {parsedReport.filters.length > 0 && (
-                      <div className="col-span-2">
-                        <span className="font-medium text-gray-700">Filters:</span>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {parsedReport.filters.map((f: any, idx: number) => (
-                            <span key={idx} className="px-2 py-1 bg-white text-gray-700 rounded text-xs border border-gray-200">
-                              {f.field} {f.operator} {Array.isArray(f.value) ? f.value.join(', ') : f.value}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {savedReports.map((report) => (
+                  <div key={report.id} className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900 mb-1">{report.report_name}</h3>
+                        {report.description && (
+                          <p className="text-sm text-gray-600 mb-2">{report.description}</p>
+                        )}
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">
+                            {report.report_config.reportType}
+                          </span>
+                          {report.tags.map((tag, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                              {tag}
                             </span>
                           ))}
                         </div>
                       </div>
-                    )}
-                    {parsedReport.metrics.length > 0 && (
-                      <div className="col-span-2">
-                        <span className="font-medium text-gray-700">Metrics ({parsedReport.metrics.length}):</span>
-                        <p className="text-gray-600 text-xs mt-1">{parsedReport.metrics.join(', ')}</p>
+                      <button
+                        onClick={() => handleToggleFavorite(report.id)}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Star className={`w-5 h-5 ${report.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span>Created: {format(new Date(report.created_at), 'MMM dd, yyyy')}</span>
                       </div>
-                    )}
-                    {(parsedReport.dateRange.start || parsedReport.dateRange.end) && (
-                      <div className="col-span-2">
-                        <span className="font-medium text-gray-700">Date Range:</span>
-                        <p className="text-gray-900">
-                          {parsedReport.dateRange.start && format(parsedReport.dateRange.start, 'MMM dd, yyyy')}
-                          {parsedReport.dateRange.start && parsedReport.dateRange.end && ' - '}
-                          {parsedReport.dateRange.end && format(parsedReport.dateRange.end, 'MMM dd, yyyy')}
-                        </p>
+                      {report.last_run_at && (
+                        <div className="flex items-center gap-1">
+                          <Play className="w-4 h-4" />
+                          <span>Runs: {report.run_count}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleGenerateReport(report.id)}
+                        disabled={generatingReportId === report.id}
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2 text-sm font-medium"
+                      >
+                        {generatingReportId === report.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-4 h-4" />
+                            Generate
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteReport(report.id)}
+                        className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Mode Selector */}
+            <div className="flex border-b border-gray-200 px-6">
+              <button
+                onClick={() => setMode('nl')}
+                className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
+                  mode === 'nl'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Sparkles className="w-5 h-5" />
+                Natural Language
+              </button>
+              <button
+                onClick={() => setMode('visual')}
+                className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
+                  mode === 'visual'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Settings className="w-5 h-5" />
+                Visual Builder
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {mode === 'nl' ? (
+                <div className="space-y-6">
+                  {/* Natural Language Input */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Describe the report you want to create
+                    </label>
+                    <textarea
+                      value={nlQuery}
+                      onChange={(e) => setNlQuery(e.target.value)}
+                      placeholder="Example: Show me all FX Spot transactions with FirstBank in the last 30 days where volume exceeded ₦1B"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32 resize-none"
+                    />
+                  </div>
+
+                  {/* Example Queries */}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Try these examples:</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {exampleQueries.map((example, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setNlQuery(example)}
+                          className="text-left px-4 py-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-sm text-gray-700 hover:text-blue-700 transition-all"
+                        >
+                          {example}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Parse Button */}
+                  <button
+                    onClick={handleParseNL}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md flex items-center justify-center gap-2 font-medium"
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    Parse & Preview Report
+                  </button>
+
+                  {/* Parsed Preview */}
+                  {showPreview && parsedReport && (
+                    <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
+                      <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        Parsed Configuration
+                      </h3>
+
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Report Type:</span>
+                          <p className="text-gray-900 capitalize">{parsedReport.reportType}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Report Name:</span>
+                          <p className="text-gray-900">{parsedReport.reportName}</p>
+                        </div>
+                        {parsedReport.filters.length > 0 && (
+                          <div className="col-span-2">
+                            <span className="font-medium text-gray-700">Filters:</span>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {parsedReport.filters.map((f: any, idx: number) => (
+                                <span key={idx} className="px-2 py-1 bg-white text-gray-700 rounded text-xs border border-gray-200">
+                                  {f.field} {f.operator} {Array.isArray(f.value) ? f.value.join(', ') : f.value}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {parsedReport.metrics.length > 0 && (
+                          <div className="col-span-2">
+                            <span className="font-medium text-gray-700">Metrics ({parsedReport.metrics.length}):</span>
+                            <p className="text-gray-600 text-xs mt-1">{parsedReport.metrics.join(', ')}</p>
+                          </div>
+                        )}
+                        {(parsedReport.dateRange.start || parsedReport.dateRange.end) && (
+                          <div className="col-span-2">
+                            <span className="font-medium text-gray-700">Date Range:</span>
+                            <p className="text-gray-900">
+                              {parsedReport.dateRange.start && format(parsedReport.dateRange.start, 'MMM dd, yyyy')}
+                              {parsedReport.dateRange.start && parsedReport.dateRange.end && ' - '}
+                              {parsedReport.dateRange.end && format(parsedReport.dateRange.end, 'MMM dd, yyyy')}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Report Type Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Report Type</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {reportTypes.map((type) => {
+                        const Icon = type.icon;
+                        return (
+                          <button
+                            key={type.value}
+                            onClick={() => {
+                              setReportType(type.value);
+                              setSelectedMetrics([]);
+                            }}
+                            className={`p-4 rounded-lg border-2 transition-all text-left ${
+                              reportType === type.value
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <Icon className={`w-6 h-6 mb-2 ${reportType === type.value ? 'text-blue-600' : 'text-gray-400'}`} />
+                            <p className="font-medium text-sm">{type.label}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Metrics Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Metrics ({selectedMetrics.length} selected)
+                    </label>
+                    <div className="border border-gray-200 rounded-lg p-4 max-h-48 overflow-y-auto">
+                      <div className="grid grid-cols-2 gap-2">
+                        {(availableMetrics[reportType as keyof typeof availableMetrics] || []).map((metric) => (
+                          <label key={metric} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                            <input
+                              type="checkbox"
+                              checked={selectedMetrics.includes(metric)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedMetrics([...selectedMetrics, metric]);
+                                } else {
+                                  setSelectedMetrics(selectedMetrics.filter(m => m !== metric));
+                                }
+                              }}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{metric}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Date Range */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                    <DateRangeFilter value={dateRange} onChange={setDateRange} />
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Group By (Optional)</label>
+                    <select
+                      multiple
+                      value={groupBy}
+                      onChange={(e) => setGroupBy(Array.from(e.target.selectedOptions, option => option.value))}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      size={4}
+                    >
+                      {(groupByOptions[reportType as keyof typeof groupByOptions] || []).map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
                   </div>
                 </div>
               )}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Report Type Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Report Type</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {reportTypes.map((type) => {
-                    const Icon = type.icon;
-                    return (
-                      <button
-                        key={type.value}
-                        onClick={() => {
-                          setReportType(type.value);
-                          setSelectedMetrics([]);
-                        }}
-                        className={`p-4 rounded-lg border-2 transition-all text-left ${
-                          reportType === type.value
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <Icon className={`w-6 h-6 mb-2 ${reportType === type.value ? 'text-blue-600' : 'text-gray-400'}`} />
-                        <p className="font-medium text-sm">{type.label}</p>
-                      </button>
-                    );
-                  })}
+
+              {/* Common Fields */}
+              <div className="space-y-4 mt-6 pt-6 border-t border-gray-200">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Report Name *</label>
+                  <input
+                    type="text"
+                    value={reportName}
+                    onChange={(e) => setReportName(e.target.value)}
+                    placeholder="Enter report name..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Add a description for this report..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-20 resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tags (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="Add tags separated by commas..."
+                    onChange={(e) => setTags(e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
               </div>
-
-              {/* Metrics Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Metrics ({selectedMetrics.length} selected)
-                </label>
-                <div className="border border-gray-200 rounded-lg p-4 max-h-48 overflow-y-auto">
-                  <div className="grid grid-cols-2 gap-2">
-                    {(availableMetrics[reportType as keyof typeof availableMetrics] || []).map((metric) => (
-                      <label key={metric} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                        <input
-                          type="checkbox"
-                          checked={selectedMetrics.includes(metric)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedMetrics([...selectedMetrics, metric]);
-                            } else {
-                              setSelectedMetrics(selectedMetrics.filter(m => m !== metric));
-                            }
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{metric}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Date Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-                <DateRangeFilter value={dateRange} onChange={setDateRange} />
-              </div>
-
-              {/* Group By */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Group By (Optional)</label>
-                <select
-                  multiple
-                  value={groupBy}
-                  onChange={(e) => setGroupBy(Array.from(e.target.selectedOptions, option => option.value))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  size={4}
-                >
-                  {(groupByOptions[reportType as keyof typeof groupByOptions] || []).map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
-              </div>
-            </div>
-          )}
-
-          {/* Common Fields */}
-          <div className="space-y-4 mt-6 pt-6 border-t border-gray-200">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Report Name *</label>
-              <input
-                type="text"
-                value={reportName}
-                onChange={(e) => setReportName(e.target.value)}
-                placeholder="Enter report name..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add a description for this report..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-20 resize-none"
-              />
+            {/* Footer */}
+            <div className="border-t border-gray-200 p-6 flex justify-end gap-3">
+              <button
+                onClick={onClose}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveReport}
+                disabled={saving || !reportName.trim()}
+                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Save className="w-5 h-5" />
+                {saving ? 'Saving...' : 'Save Report Template'}
+              </button>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tags (Optional)</label>
-              <input
-                type="text"
-                placeholder="Add tags separated by commas..."
-                onChange={(e) => setTags(e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-gray-200 p-6 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSaveReport}
-            disabled={saving || !reportName.trim()}
-            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save className="w-5 h-5" />
-            {saving ? 'Saving...' : 'Save Report Template'}
-          </button>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
