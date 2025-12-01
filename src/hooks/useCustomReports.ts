@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 interface ReportConfig {
   reportType: string;
@@ -57,6 +59,10 @@ export function useCustomReports() {
   const fetchReports = async () => {
     try {
       setLoading(true);
+      if (!supabase) {
+        setReports([]);
+        return;
+      }
       const { data, error } = await supabase
         .from('custom_reports')
         .select('*')
@@ -78,6 +84,7 @@ export function useCustomReports() {
 
   const createReport = async (report: Omit<CustomReport, 'id' | 'created_at' | 'updated_at' | 'last_generated_at' | 'generation_count'>) => {
     try {
+      if (!supabase) throw new Error('Supabase client not initialized');
       const { data, error } = await supabase
         .from('custom_reports')
         .insert([{
@@ -106,6 +113,7 @@ export function useCustomReports() {
 
   const updateReport = async (id: string, updates: Partial<CustomReport>) => {
     try {
+      if (!supabase) throw new Error('Supabase client not initialized');
       const { data, error } = await supabase
         .from('custom_reports')
         .update(updates)
@@ -125,6 +133,7 @@ export function useCustomReports() {
 
   const deleteReport = async (id: string) => {
     try {
+      if (!supabase) throw new Error('Supabase client not initialized');
       const { error } = await supabase
         .from('custom_reports')
         .delete()
@@ -145,6 +154,7 @@ export function useCustomReports() {
 
   const recordGeneration = async (reportId: string, historyEntry: Omit<ReportHistoryEntry, 'id' | 'generated_at'>) => {
     try {
+      if (!supabase) throw new Error('Supabase client not initialized');
       // Insert history entry
       const { error: historyError } = await supabase
         .from('report_history')
@@ -178,6 +188,7 @@ export function useCustomReports() {
 
   const getReportHistory = async (reportId: string): Promise<ReportHistoryEntry[]> => {
     try {
+      if (!supabase) return [];
       const { data, error } = await supabase
         .from('report_history')
         .select('*')
