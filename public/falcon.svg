@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="falconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#falconGradient)"/>
+
+  <!-- Falcon body -->
+  <path d="M32 15 L28 20 L26 28 L25 35 L26 42 L28 48 L32 52 L36 48 L38 42 L39 35 L38 28 L36 20 Z"
+        fill="#ffffff" opacity="0.95"/>
+
+  <!-- Falcon head -->
+  <ellipse cx="32" cy="18" rx="5" ry="6" fill="#ffffff"/>
+
+  <!-- Beak -->
+  <path d="M32 15 L34 17 L32 18 Z" fill="#fbbf24"/>
+
+  <!-- Eye -->
+  <circle cx="33" cy="17" r="1.5" fill="#1e3a5f"/>
+
+  <!-- Left wing -->
+  <path d="M28 25 L18 28 L15 32 L18 35 L26 33 L28 30 Z"
+        fill="#e0e7ff" opacity="0.9"/>
+  <path d="M28 25 L20 27 L17 30 L19 33 L26 31 Z"
+        fill="#c7d2fe" opacity="0.8"/>
+
+  <!-- Right wing -->
+  <path d="M36 25 L46 28 L49 32 L46 35 L38 33 L36 30 Z"
+        fill="#e0e7ff" opacity="0.9"/>
+  <path d="M36 25 L44 27 L47 30 L45 33 L38 31 Z"
+        fill="#c7d2fe" opacity="0.8"/>
+
+  <!-- Tail feathers -->
+  <path d="M32 52 L30 58 L32 56 L34 58 Z" fill="#e0e7ff" opacity="0.8"/>
+
+  <!-- Wing details -->
+  <path d="M28 28 L22 30 L20 32" stroke="#93c5fd" stroke-width="0.5" fill="none" opacity="0.6"/>
+  <path d="M36 28 L42 30 L44 32" stroke="#93c5fd" stroke-width="0.5" fill="none" opacity="0.6"/>
+
+  <!-- Body accent -->
+  <path d="M30 35 L32 38 L34 35" stroke="#dbeafe" stroke-width="1" fill="none" opacity="0.5"/>
+</svg>
