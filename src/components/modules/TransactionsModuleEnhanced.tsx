@@ -118,13 +118,13 @@ export default function TransactionsModuleEnhanced() {
             <h1 className="text-2xl font-bold text-gray-900">Transactions</h1>
             <p className="text-sm text-gray-500 mt-1">Manage all trade transactions and settlements</p>
           </div>
-          <button
+          {/* <button
             onClick={handleCreate}
             className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             New Transaction
-          </button>
+          </button> */}
         </div>
 
         {notification && (

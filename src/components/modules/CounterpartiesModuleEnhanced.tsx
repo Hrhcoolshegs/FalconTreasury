@@ -127,13 +127,13 @@ export default function CounterpartiesModuleEnhanced() {
             <h1 className="text-2xl font-bold text-gray-900">Counterparties Directory</h1>
             <p className="text-sm text-gray-500 mt-1">Manage all counterparty relationships and profiles</p>
           </div>
-          <button
+          {/* <button
             onClick={handleCreate}
             className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             Add Counterparty
-          </button>
+          </button> */}
         </div>
 
         {notification && (
